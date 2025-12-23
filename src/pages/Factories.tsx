@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import DataTable from '@/components/Common/DataTable';
-import { Edit, PlusCircle, Search, Trash2 } from 'lucide-react';
-import FactoryDetials from '@/components/factory/factoryDetials';
-import FactoryUpdate from '@/components/factory/FactoryUpdate';
-import toast from 'react-hot-toast';
+import DataTable from "@/components/Common/DataTable";
+import FactoryUpdate from "@/components/factory/FactoryUpdate";
+import FactoryDetials from "@/components/factory/factoryDetials";
+import { Edit, PlusCircle, Search, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 interface Factory {
   id: number;
@@ -37,27 +37,32 @@ export default function Factories() {
   const [isOpenDetais, setIsOpenDetais] = useState(false);
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
   const [selectedFactory, setSelectedFactory] = useState<Factory | null>(null);
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [totalItems, setTotalItems] = useState(0);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleDelete = async (factory: Factory) => {
-    if (window.confirm('هل تريد حذف هذا المصنع؟')) {
+    if (window.confirm("هل تريد حذف هذا المصنع؟")) {
       try {
-        const res = await fetch(`https://tajer-backend.tajerplatform.workers.dev/api/admin/factories/${factory.id}`, {
-          credentials: 'include',
-          method: 'DELETE'
-        });
-        
+        const res = await fetch(
+          `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/factories/${factory.id}`,
+          {
+            credentials: "include",
+            method: "DELETE",
+          }
+        );
+
         if (res.ok) {
           toast.success("تم حذف المصنع بنجاح");
-          fetchData(); 
+          fetchData();
         } else {
-          toast.error("فشل الحذف يرجي المحاوله في وقت لاحق تاكد من ان هذا المصنع لا يحتوي علي منتجات");
+          toast.error(
+            "فشل الحذف يرجي المحاوله في وقت لاحق تاكد من ان هذا المصنع لا يحتوي علي منتجات"
+          );
         }
-      } catch  {
+      } catch {
         toast.error("حدث خطأ أثناء الحذف");
       }
     }
@@ -67,27 +72,27 @@ export default function Factories() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/admin/factories?page=${currentPage}&limit=${pageSize}&search=${searchTerm}`,
-        { credentials: 'include' }
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/factories?page=${currentPage}&limit=${pageSize}&search=${searchTerm}`,
+        { credentials: "include" }
       );
-      
+
       if (!response.ok) {
-        throw new Error('فشل في جلب البيانات');
+        throw new Error("فشل في جلب البيانات");
       }
-      
+
       const data: ApiResponse = await response.json();
-      
+
       setFactories(data.data);
       setTotalItems(data.meta.total || 0);
       setCurrentPage(data.meta.page || currentPage);
       // تم حذف setPageSize هنا
-      
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'حدث خطأ غير متوقع';
+      const errorMessage =
+        err instanceof Error ? err.message : "حدث خطأ غير متوقع";
       setError(errorMessage);
-      toast.error('حدث خطأ في جلب البيانات');
+      toast.error("حدث خطأ في جلب البيانات");
     } finally {
       setLoading(false);
     }
@@ -110,74 +115,75 @@ export default function Factories() {
   const handleCloseUpdate = () => {
     setIsOpenUpdate(false);
     setSelectedFactory(null);
-    fetchData(); 
+    fetchData();
   };
 
-  const columns = [ 
+  const columns = [
     {
-      key: 'id',
-      title: 'رقم المصنع',
+      key: "id",
+      title: "رقم المصنع",
     },
     {
-      key: 'imageUrl',
-      title: 'صورة المصنع',
+      key: "imageUrl",
+      title: "صورة المصنع",
       render: (item: Factory) => (
-        <img 
-          src={item.imageUrl} 
-          className='w-20 h-20 rounded-lg object-cover' 
-          alt={item.name_ar} 
+        <img
+          src={item.imageUrl}
+          className="w-20 h-20 rounded-lg object-cover"
+          alt={item.name_ar}
         />
       ),
     },
     {
-      key: 'name_ar',
-      title: 'اسم المصنع (بالعربي)',
+      key: "name_ar",
+      title: "اسم المصنع (بالعربي)",
     },
     {
-      key: 'name',
-      title: 'اسم المصنع (بالانجليزي)',
+      key: "name",
+      title: "اسم المصنع (بالانجليزي)",
     },
     {
-      key: 'discountType',
-      title: 'نوع الخصم',
+      key: "discountType",
+      title: "نوع الخصم",
       render: (item: Factory) => (
         <span className="font-medium">
-          {item.discountType === 'percentage' ? 'نسبة مئوية' : 
-           item.discountType === 'fixed_amount' ? 'مبلغ ثابت' : 
-           item.discountType}
+          {item.discountType === "percentage"
+            ? "نسبة مئوية"
+            : item.discountType === "fixed_amount"
+            ? "مبلغ ثابت"
+            : item.discountType}
         </span>
       ),
     },
     {
-      key: 'discountAmount',
-      title: 'قيمة الخصم',
+      key: "discountAmount",
+      title: "قيمة الخصم",
       render: (item: Factory) => (
         <span className="font-semibold text-[hsl(var(--secondary))]">
-          {item.discountType === 'percentage' 
+          {item.discountType === "percentage"
             ? `${item.discountAmount}%`
-            : `${item.discountAmount} د.أ`
-          }
+            : `${item.discountAmount} د.أ`}
         </span>
       ),
     },
     {
-      key: 'actions',
-      title: 'الخيارات',
+      key: "actions",
+      title: "الخيارات",
       render: (item: Factory) => (
         <div className="flex gap-3 justify-end">
-          <button 
-            onClick={() => handleOpenUpdate(item)} 
+          <button
+            onClick={() => handleOpenUpdate(item)}
             className="text-[hsl(var(--primary))] cursor-pointer hover:text-[hsl(var(--primary))]/90 transition-colors"
             title="تعديل المصنع"
           >
-            <Edit className='w-4 h-4'/>
+            <Edit className="w-4 h-4" />
           </button>
-          <button 
-            onClick={() => handleDelete(item)} 
+          <button
+            onClick={() => handleDelete(item)}
             className="text-red-600 hover:text-red-800 cursor-pointer transition-colors hover:scale-110 duration-150"
             title="حذف المصنع"
           >
-            <Trash2 className='w-4 h-4'/>
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
       ),
@@ -188,8 +194,12 @@ export default function Factories() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">إدارة المصانع في المتجر</h1>
-        <p className="mt-1 text-sm text-gray-500">إدارة المصانع وتعديلها في المنصة</p>
+        <h1 className="text-2xl font-bold text-gray-900">
+          إدارة المصانع في المتجر
+        </h1>
+        <p className="mt-1 text-sm text-gray-500">
+          إدارة المصانع وتعديلها في المنصة
+        </p>
       </div>
 
       {/* Search and Add Button */}
@@ -204,7 +214,7 @@ export default function Factories() {
             className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-md focus:ring-[hsl(var(--primary))] focus:border-[hsl(var(--primary))]"
           />
         </div>
-        <button 
+        <button
           className="bg-[hsl(var(--primary))] text-white px-4 py-2 rounded-md hover:bg-[hsl(var(--primary))]/90 cursor-pointer flex items-center transition-colors"
           onClick={() => handleOpenUpdate(null)}
         >
@@ -215,17 +225,14 @@ export default function Factories() {
 
       {/* Modals */}
       {isOpenDetais && selectedFactory && (
-        <FactoryDetials 
-          factory={selectedFactory} 
+        <FactoryDetials
+          factory={selectedFactory}
           onClose={handleCloseDetails}
         />
       )}
-      
+
       {isOpenUpdate && (
-        <FactoryUpdate 
-          factory={selectedFactory} 
-          onClose={handleCloseUpdate}
-        />
+        <FactoryUpdate factory={selectedFactory} onClose={handleCloseUpdate} />
       )}
 
       {/* Data Table */}
@@ -238,7 +245,7 @@ export default function Factories() {
           pagination={{
             currentPage,
             pageSize,
-            totalItems: totalItems, 
+            totalItems: totalItems,
             onPageChange: setCurrentPage,
             onPageSizeChange: (size: number) => {
               setPageSize(size);

@@ -1,17 +1,23 @@
-'use client';
+"use client";
 
-import type React from 'react';
-import { useState, useEffect } from 'react';
-import { Search, Eye, Edit, RefreshCw, Users, Trash2, Copy } from 'lucide-react';
-import DataTable from '../components/Common/DataTable';
-import AddUser from '@/components/Users/AddUsersForm';
-import UserDetails from '@/components/Users/userDetails';
-import TajerRequestsTable from '@/components/Users/TajerRequestsTable';
-import BonusManagement from '@/components/Users/BonusManagement';
-import type {
-  SalesRepresentativeData,
-} from '../types/representative';
-import { toast } from 'react-hot-toast';
+import AddUser from "@/components/Users/AddUsersForm";
+import BonusManagement from "@/components/Users/BonusManagement";
+import TajerRequestsTable from "@/components/Users/TajerRequestsTable";
+import UserDetails from "@/components/Users/userDetails";
+import {
+  Copy,
+  Edit,
+  Eye,
+  RefreshCw,
+  Search,
+  Trash2,
+  Users,
+} from "lucide-react";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+import DataTable from "../components/Common/DataTable";
+import type { SalesRepresentativeData } from "../types/representative";
 
 interface overviewType {
   totalRepresentatives: number;
@@ -34,15 +40,15 @@ interface selectedUserType {
 }
 
 const TabType = {
-  REPRESENTATIVES: 'representatives',
-  TAJER_REQUESTS: 'tajer_requests',
-  BONUS: 'bonus'
+  REPRESENTATIVES: "representatives",
+  TAJER_REQUESTS: "tajer_requests",
+  BONUS: "bonus",
 } as const;
 
-type TabType = typeof TabType[keyof typeof TabType];
+type TabType = (typeof TabType)[keyof typeof TabType];
 
 const RepresentativeManagement: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [overview, setOverView] = useState<overviewType>();
@@ -54,26 +60,33 @@ const RepresentativeManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>(TabType.REPRESENTATIVES);
 
-
-  const registrationLink = "https://tajer-sales-worker.tajerplatform.workers.dev/register-sales-reps";
+  const registrationLink =
+    "https://tajer-sales-worker.tajerplatform.workers.dev/register-sales-reps";
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(registrationLink);
-    toast.success('تم نسخ الرابط بنجاح');
+    toast.success("تم نسخ الرابط بنجاح");
   };
 
   const handleDeleteUser = async (item: selectedUserType) => {
-    if (window.confirm(`هل انت متاكد من انك تريد حقا حذف هذا المستخدم? ${item.commercialName}`)) {
+    if (
+      window.confirm(
+        `هل انت متاكد من انك تريد حقا حذف هذا المستخدم? ${item.commercialName}`
+      )
+    ) {
       try {
-        const res = await fetch(`https://tajer-backend.tajerplatform.workers.dev/api/admin/users/${item.id}`, {
-          credentials: "include",
-          method: "DELETE",
-        });
+        const res = await fetch(
+          `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/users/${item.id}`,
+          {
+            credentials: "include",
+            method: "DELETE",
+          }
+        );
         if (res.ok) {
-          toast.success('تم حذف المستخدم بنجاح');
+          toast.success("تم حذف المستخدم بنجاح");
           fetchData();
         } else {
-          toast.error('حدث خطا اثناء حذف المستخدم');
+          toast.error("حدث خطا اثناء حذف المستخدم");
         }
       } catch {
         toast.error("حدث خطاء في الحذف");
@@ -84,7 +97,10 @@ const RepresentativeManagement: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const data = await fetch(`https://tajer-backend.tajerplatform.workers.dev/api/admin/sales-reps?page=${currentPage}&limit=${pageSize}&search=${searchTerm}`, { credentials: 'include' });
+      const data = await fetch(
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/sales-reps?page=${currentPage}&limit=${pageSize}&search=${searchTerm}`,
+        { credentials: "include" }
+      );
       const res = await data.json();
       setData(res.data);
       if (res.meta) {
@@ -93,21 +109,24 @@ const RepresentativeManagement: React.FC = () => {
         setPageSize(res.meta.limit || pageSize);
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
-      toast.error('حدث خطأ في جلب البيانات');
+      console.error("Error fetching data:", error);
+      toast.error("حدث خطأ في جلب البيانات");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const OverView = async () => {
     try {
-      const data = await fetch('https://tajer-backend.tajerplatform.workers.dev/api/admin/overview', { credentials: 'include' });
+      const data = await fetch(
+        "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/overview",
+        { credentials: "include" }
+      );
       const res = await data.json();
       setOverView(res);
     } catch (error) {
-      console.error('Error fetching overview:', error);
-      toast.error('حدث خطأ في جلب الإحصائيات');
+      console.error("Error fetching overview:", error);
+      toast.error("حدث خطأ في جلب الإحصائيات");
     }
   };
 
@@ -120,8 +139,8 @@ const RepresentativeManagement: React.FC = () => {
 
   const columns = [
     {
-      key: 'name',
-      title: 'الاسم',
+      key: "name",
+      title: "الاسم",
       render: (rep: SalesRepresentativeData) => (
         <div>
           <div className="font-medium">{rep.commercialName}</div>
@@ -130,15 +149,15 @@ const RepresentativeManagement: React.FC = () => {
       ),
     },
     {
-      key: 'totalStores',
-      title: 'إجمالي المتاجر',
+      key: "totalStores",
+      title: "إجمالي المتاجر",
       render: (rep: SalesRepresentativeData) => (
         <span className="font-medium">{rep.totalStores}</span>
       ),
     },
     {
-      key: 'activeStores',
-      title: 'المتاجر النشطة',
+      key: "activeStores",
+      title: "المتاجر النشطة",
       render: (rep: SalesRepresentativeData) => (
         <div>
           <span className="font-medium text-[hsl(var(--secondary))]">
@@ -155,8 +174,8 @@ const RepresentativeManagement: React.FC = () => {
       ),
     },
     {
-      key: 'totalCommission',
-      title: 'إجمالي العمولة',
+      key: "totalCommission",
+      title: "إجمالي العمولة",
       render: (rep: SalesRepresentativeData) => (
         <span className="font-semibold text-[hsl(var(--secondary))]">
           {rep.totalCommission} د.أ
@@ -164,23 +183,21 @@ const RepresentativeManagement: React.FC = () => {
       ),
     },
     {
-      key: 'monthlyCommission',
-      title: 'عمولة الشهر',
+      key: "monthlyCommission",
+      title: "عمولة الشهر",
       render: (rep: SalesRepresentativeData) => (
-        <span className="font-medium">
-          {rep.monthlyCommission} د.أ
-        </span>
+        <span className="font-medium">{rep.monthlyCommission} د.أ</span>
       ),
     },
     {
-      key: 'actions',
-      title: 'الإجراءات',
+      key: "actions",
+      title: "الإجراءات",
       render: (item: SalesRepresentativeData) => (
         <div className="flex space-x-2 space-x-reverse">
           <button
             onClick={() => {
-              setOpenDetails(true)
-              setSelectedUser(item)
+              setOpenDetails(true);
+              setSelectedUser(item);
             }}
             className="text-[hsl(var(--primary))] hover:text-blue-800 cursor-pointer"
             title="عرض التفاصيل"
@@ -189,8 +206,8 @@ const RepresentativeManagement: React.FC = () => {
           </button>
           <button
             onClick={() => {
-              setOpenForm(true)
-              setSelectedUser(item)
+              setOpenForm(true);
+              setSelectedUser(item);
             }}
             className="text-[hsl(var(--secondary))] hover:text-[hsl(var(--secondary))]/90 cursor-pointer"
             title="تعديل"
@@ -258,13 +275,16 @@ const RepresentativeManagement: React.FC = () => {
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="flex items-center">
-            <div className="h-8 w-8 text-[hsl(var(--secondary))] font-bold text-lg">د.أ</div>
+            <div className="h-8 w-8 text-[hsl(var(--secondary))] font-bold text-lg">
+              د.أ
+            </div>
             <div className="mr-4">
               <div className="text-2xl font-bold text-gray-900">
-                {overview?.totalCommission?.toFixed(2) ||
-                  '0.00'}
+                {overview?.totalCommission?.toFixed(2) || "0.00"}
               </div>
-              <div className="text-sm text-gray-500">إجمالي العمولات المدفوعه</div>
+              <div className="text-sm text-gray-500">
+                إجمالي العمولات المدفوعه
+              </div>
             </div>
           </div>
         </div>
@@ -294,35 +314,38 @@ const RepresentativeManagement: React.FC = () => {
           </div>
         </div>
       </div>
-                  
+
       {/* Tabs */}
       <div className="bg-white rounded-lg shadow">
         <div className="border-b border-gray-200">
           <nav className="flex gap-5">
             <button
               onClick={() => setActiveTab(TabType.REPRESENTATIVES)}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === TabType.REPRESENTATIVES
-                ? 'border-[hsl(var(--primary))] text-[hsl(var(--primary))]'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === TabType.REPRESENTATIVES
+                  ? "border-[hsl(var(--primary))] text-[hsl(var(--primary))]"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
             >
               المندوبين
             </button>
             <button
               onClick={() => setActiveTab(TabType.TAJER_REQUESTS)}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === TabType.TAJER_REQUESTS
-                ? 'border-[hsl(var(--primary))] text-[hsl(var(--primary))]'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === TabType.TAJER_REQUESTS
+                  ? "border-[hsl(var(--primary))] text-[hsl(var(--primary))]"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
             >
               طلبات إضافة تجار
             </button>
             <button
               onClick={() => setActiveTab(TabType.BONUS)}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === TabType.BONUS
-                ? 'border-[hsl(var(--primary))] text-[hsl(var(--primary))]'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === TabType.BONUS
+                  ? "border-[hsl(var(--primary))] text-[hsl(var(--primary))]"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
             >
               المكافآت
             </button>
@@ -335,14 +358,14 @@ const RepresentativeManagement: React.FC = () => {
           {/* Search and Filters */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex flex-col sm:flex-row gap-4">
-              <form onSubmit={e => e.preventDefault()} className="flex-1">
+              <form onSubmit={(e) => e.preventDefault()} className="flex-1">
                 <div className="relative">
                   <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <input
                     type="text"
                     placeholder="البحث باسم المندوبة..."
                     value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-md focus:ring-[hsl(var(--primary))] focus:border-[hsl(var(--primary))]"
                   />
                 </div>
@@ -368,7 +391,12 @@ const RepresentativeManagement: React.FC = () => {
               onclose={() => setOpenForm(false)}
             />
           )}
-          {OpenDetails && selectedUser && <UserDetails merchantId={selectedUser.id} onClose={() => setOpenDetails(false)} />}
+          {OpenDetails && selectedUser && (
+            <UserDetails
+              merchantId={selectedUser.id}
+              onClose={() => setOpenDetails(false)}
+            />
+          )}
 
           {/* Representatives Table */}
           <div className="bg-white rounded-lg shadow">

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
 import type { GetCategory } from "@/types/category";
+import { RotateCcw, Trash2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import {   RotateCcw, Trash2 } from "lucide-react";
 import ImageCroper from "../Common/ImageCroper";
 
 interface CategoryFormProps {
@@ -19,17 +19,19 @@ interface FormState {
 const CategoryForm: React.FC<CategoryFormProps> = ({ category, onSuccess }) => {
   const [searchCategories, setSearchCategories] = useState("");
   const [categoriesData, setCategoriesData] = useState<GetCategory[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<GetCategory[]>(category?.children?.map((e) => e) || []);
+  const [selectedCategories, setSelectedCategories] = useState<GetCategory[]>(
+    category?.children?.map((e) => e) || []
+  );
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [isOpenCategories, setIsOpenCategories] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  console.log(imageFile)
+  console.log(imageFile);
   const handleFetchCategories = async () => {
     try {
       setLoadingCategories(true);
       const res = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/public/all_categories?search=${searchCategories}`,
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/public/all_categories?search=${searchCategories}`,
         { credentials: "include" }
       );
       if (res.ok) {
@@ -53,31 +55,34 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ category, onSuccess }) => {
     name: category?.name || "",
     name_ar: category?.name_ar || "",
     parentId: category?.parentId || null,
-    imageUrl: category?.imageUrl || null
+    imageUrl: category?.imageUrl || null,
   });
 
   const handleAddCategory = (cat: GetCategory) => {
-    if (!selectedCategories.some(c => c.id === cat.id)) {
+    if (!selectedCategories.some((c) => c.id === cat.id)) {
       const updatedCategories = [...selectedCategories, cat];
       setSelectedCategories(updatedCategories);
-      setForm(prev => ({ ...prev, parentId: cat.id }));
+      setForm((prev) => ({ ...prev, parentId: cat.id }));
     }
     setIsOpenCategories(false);
   };
-const handleSave = (formData: FormData) => {
-  const imageFile = formData.get("image") as File | null;
-  if (imageFile) {
-    setForm((prev) => ({
-      ...prev,
-      imageUrl: imageFile,
-    }));
-  }
-};
+  const handleSave = (formData: FormData) => {
+    const imageFile = formData.get("image") as File | null;
+    if (imageFile) {
+      setForm((prev) => ({
+        ...prev,
+        imageUrl: imageFile,
+      }));
+    }
+  };
 
   const handleRemoveCategory = (id: number) => {
-    const updatedCategories = selectedCategories.filter(c => c.id !== id);
+    const updatedCategories = selectedCategories.filter((c) => c.id !== id);
     setSelectedCategories(updatedCategories);
-    setForm(prev => ({ ...prev, parentId: updatedCategories.length > 0 ? updatedCategories[0].id : null }));
+    setForm((prev) => ({
+      ...prev,
+      parentId: updatedCategories.length > 0 ? updatedCategories[0].id : null,
+    }));
   };
 
   const resetForm = () => {
@@ -85,7 +90,7 @@ const handleSave = (formData: FormData) => {
       name: "",
       name_ar: "",
       parentId: null,
-      imageUrl: null
+      imageUrl: null,
     });
     setSelectedCategories([]);
     setImageFile(null);
@@ -98,16 +103,22 @@ const handleSave = (formData: FormData) => {
       formData.append("name", form.name);
       formData.append("name_ar", form.name_ar);
       if (form.parentId) {
-        formData.append("children", String(selectedCategories.map(c => c.id)));
-      };
-if (form.imageUrl instanceof File) {
-  formData.append("image", form.imageUrl);
-} else if (typeof form.imageUrl === "string" && form.imageUrl.trim() !== "") {
-  formData.append("imageUrl", form.imageUrl);
-}
-      const url = category 
-        ? `https://tajer-backend.tajerplatform.workers.dev/api/admin/categories/${category.id}`
-        : "https://tajer-backend.tajerplatform.workers.dev/api/admin/categories";
+        formData.append(
+          "children",
+          String(selectedCategories.map((c) => c.id))
+        );
+      }
+      if (form.imageUrl instanceof File) {
+        formData.append("image", form.imageUrl);
+      } else if (
+        typeof form.imageUrl === "string" &&
+        form.imageUrl.trim() !== ""
+      ) {
+        formData.append("imageUrl", form.imageUrl);
+      }
+      const url = category
+        ? `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/categories/${category.id}`
+        : "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/categories";
 
       const method = category ? "PUT" : "POST";
 
@@ -118,7 +129,9 @@ if (form.imageUrl instanceof File) {
       });
 
       if (response.ok) {
-        toast.success(category ? "تم تحديث التصنيف بنجاح" : "تم إضافة التصنيف بنجاح");
+        toast.success(
+          category ? "تم تحديث التصنيف بنجاح" : "تم إضافة التصنيف بنجاح"
+        );
         onSuccess();
       } else {
         const errorData = await response.json();
@@ -134,13 +147,15 @@ if (form.imageUrl instanceof File) {
 
   return (
     <div className="space-y-4 max-h-[550px] overflow-auto p-4">
-   
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="name"
+          className="block text-sm font-medium text-gray-700"
+        >
           اسم التصنيف
         </label>
         <input
-          onChange={(e) => setForm({...form, name: e.target.value})}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
           value={form.name}
           id="name"
           className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm border-2 p-3 focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-[hsl(var(--primary))] transition-colors"
@@ -149,11 +164,14 @@ if (form.imageUrl instanceof File) {
       </div>
 
       <div>
-        <label htmlFor="name_ar" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="name_ar"
+          className="block text-sm font-medium text-gray-700"
+        >
           اسم التصنيف بالعربي
         </label>
         <input
-          onChange={(e) => setForm({...form, name_ar: e.target.value})}
+          onChange={(e) => setForm({ ...form, name_ar: e.target.value })}
           value={form.name_ar}
           id="name_ar"
           className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm border-2 p-3 focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-[hsl(var(--primary))] transition-colors"
@@ -183,7 +201,9 @@ if (form.imageUrl instanceof File) {
                     className="w-12 h-12 rounded-lg object-cover border-2 border-gray-200"
                   />
                   <div>
-                    <span className="font-medium text-gray-800">{cat.name}</span>
+                    <span className="font-medium text-gray-800">
+                      {cat.name}
+                    </span>
                     {cat.name_ar && (
                       <p className="text-sm text-gray-600">{cat.name_ar}</p>
                     )}
@@ -211,7 +231,7 @@ if (form.imageUrl instanceof File) {
         >
           <span className="text-gray-700">اختر تصنيفات رئيسية (اختياري)</span>
           <span className="text-gray-500 transition-transform">
-            {isOpenCategories ? '▲' : '▼'}
+            {isOpenCategories ? "▲" : "▼"}
           </span>
         </button>
         {isOpenCategories && (
@@ -260,20 +280,22 @@ if (form.imageUrl instanceof File) {
         )}
       </div>
 
-      <div className='w-full'>
-        <label className="block text-sm font-medium text-gray-700 mb-3">صورة التصنيف</label>
+      <div className="w-full">
+        <label className="block text-sm font-medium text-gray-700 mb-3">
+          صورة التصنيف
+        </label>
         <ImageCroper
-        width={1600}
-        height={900}
-        aspect={16 / 9}
-        loadingSave={loading}
-        banner={category?.imageUrl ? { imageUrl: category.imageUrl } : null}
+          width={1600}
+          height={900}
+          aspect={16 / 9}
+          loadingSave={loading}
+          banner={category?.imageUrl ? { imageUrl: category.imageUrl } : null}
           onSave={handleSave}
-       onClose={() => {}}
-        minDimensions={{
-    width: 800,
-    height: 450,
-  }}
+          onClose={() => {}}
+          minDimensions={{
+            width: 800,
+            height: 450,
+          }}
         />
       </div>
 
@@ -302,8 +324,10 @@ if (form.imageUrl instanceof File) {
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
               جاري الحفظ...
             </div>
+          ) : category ? (
+            "تحديث التصنيف"
           ) : (
-            category ? "تحديث التصنيف" : "إضافة التصنيف"
+            "إضافة التصنيف"
           )}
         </button>
       </div>

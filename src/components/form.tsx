@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
 import type { GetOrder } from '@/types/order';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 
 import L from 'leaflet';
 const markerIcon = new L.Icon({
@@ -95,7 +95,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ order, onClose })
     const fetchOrderData = async () => {
       try {
         const response = await fetch(
-          `https://tajer-backend.tajerplatform.workers.dev/api/orders/orders/${order.id}`,
+          `https://tajer-platform-api.eyadabdou862.workers.dev/api/orders/orders/${order.id}`,
           { credentials: 'include' }
         );
         const res: OrderApiResponse = await response.json();
@@ -109,7 +109,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ order, onClose })
     const fetchUserLocate = async () => {
       try {
         const fetchuserData = await fetch(
-          `https://tajer-backend.tajerplatform.workers.dev/api/public/users/${order.id}`
+          `https://tajer-platform-api.eyadabdou862.workers.dev/api/public/users/${order.id}`
         );
         const userData: UserLocateApiResponse = await fetchuserData.json();
         setUserLocationDetails(userData.locationDetails);

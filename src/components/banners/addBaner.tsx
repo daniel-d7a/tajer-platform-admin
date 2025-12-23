@@ -1,5 +1,5 @@
-import { X, Trash2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Trash2, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import ImageCroper from "../Common/ImageCroper";
 
 interface Banner {
@@ -36,7 +36,12 @@ interface AddBannerProps {
   onSave: (formData: FormData) => void;
 }
 
-export default function AddBanner({ banner, onClose, onSave, loadingSave }: AddBannerProps) {
+export default function AddBanner({
+  banner,
+  onClose,
+  onSave,
+  loadingSave,
+}: AddBannerProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isOpenProducts, setIsOpenProducts] = useState(false);
   const [productsData, setProductsData] = useState<Product[]>([]);
@@ -47,7 +52,9 @@ export default function AddBanner({ banner, onClose, onSave, loadingSave }: AddB
     if (banner?.link && banner.link.includes("/product/")) {
       try {
         const productId = banner.link.split("/product/")[1];
-        const data = await fetch(`https://tajer-backend.tajerplatform.workers.dev/api/public/products/${productId}`);
+        const data = await fetch(
+          `https://tajer-platform-api.eyadabdou862.workers.dev/api/public/products/${productId}`
+        );
         const res = await data.json();
         setSelectedProduct(res);
       } catch (error) {
@@ -64,7 +71,7 @@ export default function AddBanner({ banner, onClose, onSave, loadingSave }: AddB
     setLoadingProducts(true);
     try {
       const response = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/public/all_products`
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/public/all_products`
       );
       if (response.ok) {
         const data = await response.json();
@@ -90,20 +97,20 @@ export default function AddBanner({ banner, onClose, onSave, loadingSave }: AddB
 
   const handleSave = () => {
     const formData = new FormData();
-    
+
     if (croppedImageFile) {
       formData.append("image", croppedImageFile);
     }
-    
+
     if (selectedProduct) {
       formData.append("link", `/product/${selectedProduct.id}`);
       formData.append("headline", selectedProduct.name);
     } else if (banner?.link) {
       formData.append("link", banner.link);
     }
-    
+
     formData.append("position", "top");
-    
+
     if (banner?.headline) {
       formData.append("headline", banner.headline);
     }
@@ -112,35 +119,32 @@ export default function AddBanner({ banner, onClose, onSave, loadingSave }: AddB
   };
 
   return (
-    <div  
-      className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"    
-    >    
-      <div 
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div
         onClick={(e) => e.stopPropagation()}
         className="relative top-10 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white"
       >
-        <div className='flex justify-between items-center border-b pb-3'>
+        <div className="flex justify-between items-center border-b pb-3">
           <h2 className="text-xl font-bold text-gray-800">
             {banner ? "تعديل البانر" : "إضافة بانر جديد"}
           </h2>
-          <button 
+          <button
             onClick={onClose}
             className="text-gray-500 p-1 hover:text-gray-700 cursor-pointer transition-colors"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
-        
+
         <div className="space-y-4 mt-4">
           <div>
             <h3 className="text-lg font-medium text-gray-700 mb-2">
               {banner ? "قم بتعديل الصورة الحالية" : "اختر صورة البانر"}
             </h3>
             <p className="text-sm text-gray-500">
-              {banner 
-                ? "يمكنك استبدال الصورة الحالية بصورة جديدة" 
-                : "اختر صورة مناسبة لعرضها كبانر كامل الشاشة"
-              }
+              {banner
+                ? "يمكنك استبدال الصورة الحالية بصورة جديدة"
+                : "اختر صورة مناسبة لعرضها كبانر كامل الشاشة"}
             </p>
           </div>
 
@@ -155,12 +159,17 @@ export default function AddBanner({ banner, onClose, onSave, loadingSave }: AddB
                       alt={selectedProduct.name}
                       className="w-12 h-12 rounded-lg object-cover border-2 border-gray-300"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/placeholder-image.jpg";
+                        (e.target as HTMLImageElement).src =
+                          "/placeholder-image.jpg";
                       }}
                     />
                     <div>
-                      <span className="font-medium text-gray-800">{selectedProduct.name}</span>
-                      <p className="text-sm text-gray-500">{selectedProduct.name_ar}</p>
+                      <span className="font-medium text-gray-800">
+                        {selectedProduct.name}
+                      </span>
+                      <p className="text-sm text-gray-500">
+                        {selectedProduct.name_ar}
+                      </p>
                     </div>
                   </div>
                   <button
@@ -177,7 +186,7 @@ export default function AddBanner({ banner, onClose, onSave, loadingSave }: AddB
                 <p className="text-gray-500">لم يتم اختيار منتج</p>
               </div>
             )}
-            
+
             <div className="relative w-full">
               <button
                 onClick={() => {
@@ -190,9 +199,11 @@ export default function AddBanner({ banner, onClose, onSave, loadingSave }: AddB
                 type="button"
               >
                 <span className="text-gray-700">اختر منتج (اختياري)</span>
-                <span className="text-gray-500">{isOpenProducts ? '▲' : '▼'}</span>
+                <span className="text-gray-500">
+                  {isOpenProducts ? "▲" : "▼"}
+                </span>
               </button>
-              
+
               {isOpenProducts && (
                 <div className="absolute mt-2 w-full bg-white border-2 border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
                   {loadingProducts ? (
@@ -214,12 +225,17 @@ export default function AddBanner({ banner, onClose, onSave, loadingSave }: AddB
                           src={product.imageUrl || "/placeholder-image.jpg"}
                           alt={product.name}
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/placeholder-image.jpg";
+                            (e.target as HTMLImageElement).src =
+                              "/placeholder-image.jpg";
                           }}
                         />
                         <div className="flex-1">
-                          <div className="font-medium text-gray-800">{product.name}</div>
-                          <div className="text-sm text-gray-500">{product.name_ar}</div>
+                          <div className="font-medium text-gray-800">
+                            {product.name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {product.name_ar}
+                          </div>
                         </div>
                       </div>
                     ))
@@ -233,10 +249,10 @@ export default function AddBanner({ banner, onClose, onSave, loadingSave }: AddB
             </div>
           </div>
 
-          <ImageCroper 
+          <ImageCroper
             width={3840}
             height={2160}
-            aspect={16/9}
+            aspect={16 / 9}
             onSave={handleImageCrop}
             onClose={onClose}
             banner={banner}

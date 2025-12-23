@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { Package, Tag, PlusCircle, Edit, Trash2, Search } from "lucide-react";
+import type { GetCategory as Category } from "@/types/category";
+import type { GetProduct as Product } from "@/types/product";
+import { Edit, Package, PlusCircle, Search, Tag, Trash2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import DataTable from "../components/Common/DataTable";
 import Modal from "../components/Common/Modal";
-import ProductForm from "../components/products/ProductFormModal";
 import CategoryForm from "../components/products/CategoryForm";
-import type { GetProduct as Product } from "@/types/product";
-import type { GetCategory as Category } from "@/types/category";
 import CategoryTreeDisplay from "../components/products/CategoryTreeDisplay";
-import toast from "react-hot-toast";
+import ProductForm from "../components/products/ProductFormModal";
 
 interface Factory {
   id: number;
@@ -29,16 +29,20 @@ interface CategoriesResponse {
 }
 
 const ProductManagement: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"products" | "categories">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "categories">(
+    "products"
+  );
   const [search, setSearch] = useState("");
   const [searchCategories, setSearchCategories] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<Product | Category | null>(null);
+  const [editingItem, setEditingItem] = useState<Product | Category | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [loadingDelete, setLoadingDelete] = useState(false);
-  
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
@@ -50,35 +54,37 @@ const ProductManagement: React.FC = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/public/products?categoryId=&search=${search}&page=${currentPage}&limit=${pageSize}`,
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/public/products?categoryId=&search=${search}&page=${currentPage}&limit=${pageSize}`,
         { credentials: "include" }
       );
-      
+
       if (!response.ok) {
-        throw new Error('فشل في جلب البيانات');
+        throw new Error("فشل في جلب البيانات");
       }
-      
+
       const res: ApiResponse = await response.json();
       setProducts(res.data || []);
-      
+
       // Set pagination data
       if (res.meta) {
         setTotalItems(res.meta.total || 0);
         setCurrentPage(res.meta.page || currentPage);
       }
-      
+
       // Fetch factory names
       const factoryIds: number[] = Array.from(
-        new Set(res.data.map((p: Product) => p.factoryId).filter(Boolean) as number[])
+        new Set(
+          res.data.map((p: Product) => p.factoryId).filter(Boolean) as number[]
+        )
       );
-      
+
       const factoriesMap: Record<number, string> = {};
       await Promise.all(
         factoryIds.map(async (id: number) => {
           if (!factories[id]) {
             try {
               const factoryRes = await fetch(
-                `https://tajer-backend.tajerplatform.workers.dev/api/admin/factories/${id}`,
+                `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/factories/${id}`,
                 { credentials: "include" }
               );
               const factoryData: Factory = await factoryRes.json();
@@ -105,7 +111,7 @@ const ProductManagement: React.FC = () => {
   const fetchCategories = async (): Promise<void> => {
     try {
       const res = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/public/categories?limit=&page=&search=${searchCategories}`,
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/public/categories?limit=&page=&search=${searchCategories}`,
         { credentials: "include" }
       );
       const data: CategoriesResponse = await res.json();
@@ -135,16 +141,16 @@ const ProductManagement: React.FC = () => {
       const toastId = toast.loading("جاري الحذف ...");
 
       try {
-        const isProduct = 'piecePrice' in item;
+        const isProduct = "piecePrice" in item;
         const url = isProduct
-          ? `https://tajer-backend.tajerplatform.workers.dev/api/admin/products/${item.id}`
-          : `https://tajer-backend.tajerplatform.workers.dev/api/admin/categories/${item.id}`;
-        
+          ? `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/products/${item.id}`
+          : `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/categories/${item.id}`;
+
         const res = await fetch(url, {
           method: "DELETE",
           credentials: "include",
         });
-        
+
         if (res.ok) {
           toast.success("تم حذف العنصر بنجاح", { id: toastId });
           if (isProduct) {
@@ -153,7 +159,9 @@ const ProductManagement: React.FC = () => {
             fetchCategories();
           }
         } else {
-          toast.error("حدث خطأ أثناء الحذف ربما هو موجود في طلب ما", { id: toastId });
+          toast.error("حدث خطأ أثناء الحذف ربما هو موجود في طلب ما", {
+            id: toastId,
+          });
         }
       } catch (error) {
         toast.error("حدث خطأ في الاتصال", { id: toastId });
@@ -208,13 +216,13 @@ const ProductManagement: React.FC = () => {
         item.unitType === "piece_only"
           ? "قطعة"
           : item.unitType === "pack_only"
-            ? "حزمة"
-            : "قطعة و حزمة",
+          ? "حزمة"
+          : "قطعة و حزمة",
     },
-    { 
-      key: "discountAmount", 
+    {
+      key: "discountAmount",
       title: "نسبه الخصم",
-      render: (item: Product) => item.discountAmount?.toString() || "0"
+      render: (item: Product) => item.discountAmount?.toString() || "0",
     },
     {
       key: "discountType",
@@ -223,8 +231,8 @@ const ProductManagement: React.FC = () => {
         item.discountType === "percentage"
           ? "نسبه مئويه"
           : item.discountType === "fixed_amount"
-            ? "مبلغ ثابت"
-            : "لا يوجد نوع خصم",
+          ? "مبلغ ثابت"
+          : "لا يوجد نوع خصم",
     },
     {
       key: "barcode",
@@ -281,7 +289,10 @@ const ProductManagement: React.FC = () => {
         </div>
 
         <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8 space-x-reverse" aria-label="Tabs">
+          <nav
+            className="-mb-px flex space-x-8 space-x-reverse"
+            aria-label="Tabs"
+          >
             <button
               onClick={() => setActiveTab("products")}
               className={`flex items-center whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm cursor-pointer ${
@@ -313,7 +324,9 @@ const ProductManagement: React.FC = () => {
           <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
           <input
             type="text"
-            placeholder={`البحث باسم ${activeTab === "products" ? "المنتج" : "التصنيف"}...`}
+            placeholder={`البحث باسم ${
+              activeTab === "products" ? "المنتج" : "التصنيف"
+            }...`}
             value={activeTab === "products" ? search : searchCategories}
             onChange={(e) =>
               activeTab === "products"
@@ -337,7 +350,7 @@ const ProductManagement: React.FC = () => {
                 إضافة منتج جديد
               </button>
             </div>
-            
+
             <DataTable
               data={products}
               columns={productColumns}
@@ -390,8 +403,8 @@ const ProductManagement: React.FC = () => {
               ? "تعديل منتج"
               : "إضافة منتج جديد"
             : editingItem
-              ? "تعديل تصنيف"
-              : "إضافة تصنيف جديد"
+            ? "تعديل تصنيف"
+            : "إضافة تصنيف جديد"
         }
       >
         {isModalOpen &&

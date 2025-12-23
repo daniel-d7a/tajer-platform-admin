@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Trash2, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 interface Product {
@@ -9,9 +9,9 @@ interface Product {
   name: string;
   imageUrl: string;
   piecePrice: number;
-  barcode:string;
-  minOrderQuantity:number;
-  name_ar:string;
+  barcode: string;
+  minOrderQuantity: number;
+  name_ar: string;
 }
 
 interface Category {
@@ -22,7 +22,6 @@ interface Category {
   imageUrl: string | null;
   image_public_id: string | null;
 }
-
 
 interface CashBackItem {
   id: number;
@@ -43,7 +42,6 @@ interface CashBackEditProps {
   onSuccess?: () => void;
 }
 
-
 interface FormData {
   name: string;
   description: string;
@@ -53,7 +51,7 @@ interface FormData {
   value: number;
   minOrderValue: number;
   productIds: number[];
-  categoryIds: number[]; 
+  categoryIds: number[];
 }
 
 export default function CashBackEdit({
@@ -61,11 +59,19 @@ export default function CashBackEdit({
   onClose,
   onSuccess,
 }: CashBackEditProps) {
-  const [type,setType] = useState('')
-  const [productsChoose, setProductsChoose] = useState<Product[]>(items?.products ?? []);
-  const [productsIds, setProductsIDS] = useState<number[]>(items?.products?.map((p) => p.id) ?? []);
-  const [categoriesChoose, setCategoriesChoose] = useState<Category[]>(items?.categories ?? []);
-  const [categoriesIds, setCategoriesIDS] = useState<number[]>(items?.categories?.map((c) => c.id) ?? []);
+  const [type, setType] = useState("");
+  const [productsChoose, setProductsChoose] = useState<Product[]>(
+    items?.products ?? []
+  );
+  const [productsIds, setProductsIDS] = useState<number[]>(
+    items?.products?.map((p) => p.id) ?? []
+  );
+  const [categoriesChoose, setCategoriesChoose] = useState<Category[]>(
+    items?.categories ?? []
+  );
+  const [categoriesIds, setCategoriesIDS] = useState<number[]>(
+    items?.categories?.map((c) => c.id) ?? []
+  );
   const [formData, setFormData] = useState<FormData>({
     name: items?.name ?? "",
     description: items?.description ?? "",
@@ -88,10 +94,17 @@ export default function CashBackEdit({
   const [loadingCategories, setLoadingCategories] = useState(true);
 
   useEffect(() => {
-    setFormData((prev) => ({ ...prev, productIds: productsIds, categoryIds: categoriesIds }));
+    setFormData((prev) => ({
+      ...prev,
+      productIds: productsIds,
+      categoryIds: categoriesIds,
+    }));
   }, [productsIds, categoriesIds]);
 
-  const handleChange = <K extends keyof FormData>(key: K, value: FormData[K]) => {
+  const handleChange = <K extends keyof FormData>(
+    key: K,
+    value: FormData[K]
+  ) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -99,7 +112,7 @@ export default function CashBackEdit({
     try {
       setLoadingProducts(true);
       const res = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/public/all_products?categoryId=&search=${searchProducts}`,
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/public/all_products?categoryId=&search=${searchProducts}`,
         { credentials: "include" }
       );
       const data = await res.json();
@@ -115,7 +128,7 @@ export default function CashBackEdit({
     try {
       setLoadingCategories(true);
       const res = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/public/all_categories?search=${searchCategories}`,
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/public/all_categories?search=${searchCategories}`,
         { credentials: "include" }
       );
       if (res.ok) {
@@ -130,16 +143,16 @@ export default function CashBackEdit({
       setLoadingCategories(false);
     }
   };
- useEffect(() => {
-  if (items && items.id) {
-    setType("تعديل");
-  } else {
-    setType("إنشاء");
-  }
-}, [items]);
+  useEffect(() => {
+    if (items && items.id) {
+      setType("تعديل");
+    } else {
+      setType("إنشاء");
+    }
+  }, [items]);
   useEffect(() => {
     handleFetchProducts();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchProducts]);
 
   useEffect(() => {
@@ -159,64 +172,61 @@ export default function CashBackEdit({
 
   const handleSubmit = async () => {
     setLoading(true);
-    if(items && items.id) {
-  try {
-    
-      const res = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/cashback/cashback/campaigns/${items.id}`,
-        {
-          method: "PATCH",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
-      );
+    if (items && items.id) {
+      try {
+        const res = await fetch(
+          `https://tajer-platform-api.eyadabdou862.workers.dev/api/cashback/cashback/campaigns/${items.id}`,
+          {
+            method: "PATCH",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+          }
+        );
 
-      if (res.ok) {
-        toast.success(`تم ${type} الحملة بنجاح `);
-        onSuccess?.();
-        onClose();
-      } else {
-        const errorData = await res.json();
-        toast.error("فشل التعديل");
-        console.error("خطأ:", errorData);
-      }
-    } catch (err) {
-      toast.error("حصل خطأ أثناء الحفظ");
-      console.error("حصل خطأ", err);
-    } finally {
-      setLoading(false);
-    }
-    }else{
-        try {
-    
-      const res = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/cashback/cashback/campaigns`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+        if (res.ok) {
+          toast.success(`تم ${type} الحملة بنجاح `);
+          onSuccess?.();
+          onClose();
+        } else {
+          const errorData = await res.json();
+          toast.error("فشل التعديل");
+          console.error("خطأ:", errorData);
         }
-      );
-
-      if (res.ok) {
-        toast.success(`تم ${type} الحملة بنجاح `);
-        onSuccess?.();
-        onClose();
-      } else {
-        const errorData = await res.json();
-        toast.error("فشل التعديل");
-        console.error("خطأ:", errorData);
+      } catch (err) {
+        toast.error("حصل خطأ أثناء الحفظ");
+        console.error("حصل خطأ", err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      toast.error("حصل خطأ أثناء الحفظ");
-      console.error("حصل خطأ", err);
-    } finally {
-      setLoading(false);
+    } else {
+      try {
+        const res = await fetch(
+          `https://tajer-platform-api.eyadabdou862.workers.dev/api/cashback/cashback/campaigns`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+          }
+        );
+
+        if (res.ok) {
+          toast.success(`تم ${type} الحملة بنجاح `);
+          onSuccess?.();
+          onClose();
+        } else {
+          const errorData = await res.json();
+          toast.error("فشل التعديل");
+          console.error("خطأ:", errorData);
+        }
+      } catch (err) {
+        toast.error("حصل خطأ أثناء الحفظ");
+        console.error("حصل خطأ", err);
+      } finally {
+        setLoading(false);
+      }
     }
-    }
-  
   };
 
   return (
@@ -263,7 +273,10 @@ export default function CashBackEdit({
             <select
               value={formData.type}
               onChange={(e) =>
-                handleChange("type", e.target.value as "percentage" | "fixed_amount")
+                handleChange(
+                  "type",
+                  e.target.value as "percentage" | "fixed_amount"
+                )
               }
               className="border p-2 w-full rounded-md border-gray-500"
             >
@@ -283,7 +296,9 @@ export default function CashBackEdit({
             label="الحد الأدنى للطلب"
             type="number"
             value={formData.minOrderValue}
-            onChange={(e) => handleChange("minOrderValue", Number(e.target.value))}
+            onChange={(e) =>
+              handleChange("minOrderValue", Number(e.target.value))
+            }
           />
 
           <div className="flex flex-col gap-2 col-span-2">
@@ -303,11 +318,16 @@ export default function CashBackEdit({
             المنتجات المختارة
           </label>
           {productsChoose.length === 0 ? (
-            <p className="text-sm text-center text-gray-500 p-3 border rounded">لا توجد منتجات بعد</p>
+            <p className="text-sm text-center text-gray-500 p-3 border rounded">
+              لا توجد منتجات بعد
+            </p>
           ) : (
             <div className="border rounded p-3 overflow-y-auto space-y-2 max-h-40">
               {productsChoose.map((product) => (
-                <div key={product.id} className="flex gap-3 items-center justify-between">
+                <div
+                  key={product.id}
+                  className="flex gap-3 items-center justify-between"
+                >
                   <div className="flex items-center gap-3">
                     <img
                       src={product.imageUrl}
@@ -391,11 +411,16 @@ export default function CashBackEdit({
             التصنيفات المختارة
           </label>
           {categoriesChoose.length === 0 ? (
-            <p className="text-sm text-center text-gray-500 p-3 border rounded">لا توجد تصنيفات بعد</p>
+            <p className="text-sm text-center text-gray-500 p-3 border rounded">
+              لا توجد تصنيفات بعد
+            </p>
           ) : (
             <div className="border rounded p-3 overflow-y-auto space-y-2 max-h-40">
               {categoriesChoose.map((category) => (
-                <div key={category.id} className="flex gap-3 items-center justify-between">
+                <div
+                  key={category.id}
+                  className="flex gap-3 items-center justify-between"
+                >
                   <div className="flex items-center gap-3">
                     <img
                       src={category.imageUrl ?? ""}
@@ -474,7 +499,6 @@ export default function CashBackEdit({
             disabled={loading}
             className="bg-[hsl(var(--primary))] text-white w-full mt-4 p-2 rounded-md hover:bg-[hsl(var(--primary))]/90 disabled:opacity-50 cursor-pointer"
           >
-
             {loading ? "جارٍ الحفظ..." : "حفظ التعديلات"}
           </button>
           <button
@@ -496,7 +520,12 @@ interface InputFieldProps {
   type?: string;
 }
 
-function InputField({ label, value, onChange, type = "text" }: InputFieldProps) {
+function InputField({
+  label,
+  value,
+  onChange,
+  type = "text",
+}: InputFieldProps) {
   return (
     <div className="flex flex-col gap-2">
       <label className="block text-sm font-medium text-gray-700">{label}</label>

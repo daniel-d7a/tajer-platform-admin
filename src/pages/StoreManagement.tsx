@@ -1,12 +1,20 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Search, Filter, Eye, RefreshCw, DollarSign, Edit, Trash2 } from 'lucide-react';
-import toast from 'react-hot-toast';
-import DataTable from '../components/Common/DataTable';
-import type { GetUser as Store } from '../types/user';
-import AddUsersForm from  '@/components/Users/AddUsersForm';
-import UserDetails from '@/components/Users/userDetails';
+import AddUsersForm from "@/components/Users/AddUsersForm";
+import UserDetails from "@/components/Users/userDetails";
+import {
+  DollarSign,
+  Edit,
+  Eye,
+  Filter,
+  RefreshCw,
+  Search,
+  Trash2,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import DataTable from "../components/Common/DataTable";
+import type { GetUser as Store } from "../types/user";
 
 interface StoreFilters {
   specialty?: string;
@@ -29,7 +37,7 @@ interface User {
 }
 
 const StoreManagement: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<StoreFilters>({});
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
@@ -44,25 +52,26 @@ const StoreManagement: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
 
   const buildApiUrl = () => {
-    const baseUrl = 'https://tajer-backend.tajerplatform.workers.dev/api/admin/merchants';
+    const baseUrl =
+      "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/merchants";
     const params = new URLSearchParams();
-    
-    if (filters.region && filters.region !== '') {
-      params.append('region', filters.region);
+
+    if (filters.region && filters.region !== "") {
+      params.append("region", filters.region);
     }
-    if (filters.specialty && filters.specialty !== '') {
-      params.append('specialty', filters.specialty);
+    if (filters.specialty && filters.specialty !== "") {
+      params.append("specialty", filters.specialty);
     }
-    if (filters.status && filters.status !== '') {
-      params.append('status', filters.status);
+    if (filters.status && filters.status !== "") {
+      params.append("status", filters.status);
     }
-    
-    params.append('page', currentPage.toString());
-    params.append('limit', pageSize.toString());
+
+    params.append("page", currentPage.toString());
+    params.append("limit", pageSize.toString());
     if (searchTerm) {
-      params.append('search', searchTerm);
+      params.append("search", searchTerm);
     }
-    
+
     return `${baseUrl}?${params.toString()}`;
   };
 
@@ -70,36 +79,43 @@ const StoreManagement: React.FC = () => {
     try {
       setLoading(true);
       const url = buildApiUrl();
-      const response = await fetch(url, { credentials: 'include' });
+      const response = await fetch(url, { credentials: "include" });
       const res = await response.json();
-      
+
       if (res.meta) {
         setTotalItems(res.meta.total || 0);
         setCurrentPage(res.meta.page || currentPage);
         setPageSize(res.meta.limit || pageSize);
       }
-      
+
       setRealData(res.data || []);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
       setLoading(false);
-      toast.error('حدث خطأ في تحميل البيانات');
+      toast.error("حدث خطأ في تحميل البيانات");
     }
   };
 
   const handleDeleteUser = async (item: Store) => {
-    if (window.confirm(`هل انت متاكد من انك تريد حقا حذف هذا المستخدم ${item.commercialName}`)) {
+    if (
+      window.confirm(
+        `هل انت متاكد من انك تريد حقا حذف هذا المستخدم ${item.commercialName}`
+      )
+    ) {
       try {
-        const res = await fetch(`https://tajer-backend.tajerplatform.workers.dev/api/admin/users/${item.id}`, {
-          credentials: "include",
-          method: "DELETE",
-        });
+        const res = await fetch(
+          `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/users/${item.id}`,
+          {
+            credentials: "include",
+            method: "DELETE",
+          }
+        );
         if (res.ok) {
-          toast.success('تم حذف المستخدم بنجاح');
+          toast.success("تم حذف المستخدم بنجاح");
           fetchData();
         } else {
-          toast.error('حدث خطا اثناء حذف المستخدم');
+          toast.error("حدث خطا اثناء حذف المستخدم");
         }
       } catch {
         toast.error("حدث خطاء في الحذف");
@@ -114,42 +130,45 @@ const StoreManagement: React.FC = () => {
 
   const handleAddBalance = async () => {
     try {
-      const response = await fetch('https://tajer-backend.tajerplatform.workers.dev/api/cashback/cashback/manual', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          merchantId: selectedStore?.id,
-          amount: Number(value)
-        })
-      });
-      
+      const response = await fetch(
+        "https://tajer-platform-api.eyadabdou862.workers.dev/api/cashback/cashback/manual",
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            merchantId: selectedStore?.id,
+            amount: Number(value),
+          }),
+        }
+      );
+
       if (response.ok) {
-        toast.success('تمت اضافه الرصيد بنجاح للحساب');
+        toast.success("تمت اضافه الرصيد بنجاح للحساب");
         setShowBalanceModal(false);
         setValue(0);
         fetchData();
       } else {
-        toast.error('فشل في إضافة الرصيد');
+        toast.error("فشل في إضافة الرصيد");
       }
     } catch {
-      toast.error('حدث خطأ في إضافة الرصيد');
+      toast.error("حدث خطأ في إضافة الرصيد");
     }
   };
 
   // Reset filters function
   const resetFilters = () => {
     setFilters({});
-    setSearchTerm('');
+    setSearchTerm("");
     setCurrentPage(1);
   };
 
   const columns = [
     {
-      key: 'commercialName',
-      title: 'اسم المتجر',
+      key: "commercialName",
+      title: "اسم المتجر",
       render: (store: Store) => (
         <div>
           <div className="font-medium">{store.commercialName}</div>
@@ -158,21 +177,21 @@ const StoreManagement: React.FC = () => {
       ),
     },
     {
-      key: 'businessType',
-      title: 'التخصص',
+      key: "businessType",
+      title: "التخصص",
       render: (store: Store) => {
         const businessTypeMap: { [key: string]: string } = {
-          'shop': 'متجر',
-          'restaurant': 'مطعم',
-          'supermarket': 'سوبر ماركت',
-          'roastery': 'محمصة',
-          'sweets shop': 'محل حلويات',
-          'coffee shop': 'محل قهوة',
-          'cafe': 'قهوة',
-          'library': 'مكتبة',
-          'other': 'أخرى'
+          shop: "متجر",
+          restaurant: "مطعم",
+          supermarket: "سوبر ماركت",
+          roastery: "محمصة",
+          "sweets shop": "محل حلويات",
+          "coffee shop": "محل قهوة",
+          cafe: "قهوة",
+          library: "مكتبة",
+          other: "أخرى",
         };
-        
+
         return (
           <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-[hsl(var(--primary-10))] text-[hsl(var(--primary))]">
             {businessTypeMap[store.businessType] || store.businessType}
@@ -181,51 +200,51 @@ const StoreManagement: React.FC = () => {
       },
     },
     {
-      key: 'city',
-      title: 'المدينة',
+      key: "city",
+      title: "المدينة",
       render: (store: Store) => {
         const cityMap: { [key: string]: string } = {
-          'amman': 'عمان',
-          'zarqa': 'الزرقاء', 
-          'irbid': 'إربد',
-          'russeifa': 'الرصيفة',
-          'aqaba': 'العقبة',
-          'salt': 'السلط',
-          'Madaba': 'مادبا',
-          'jerash': 'جرش',
-          'ajloun': 'عجلون',
-          'karak': 'الكرك',
-          'tafilah': 'الطفيلة',
-          'maan': 'معان'
+          amman: "عمان",
+          zarqa: "الزرقاء",
+          irbid: "إربد",
+          russeifa: "الرصيفة",
+          aqaba: "العقبة",
+          salt: "السلط",
+          Madaba: "مادبا",
+          jerash: "جرش",
+          ajloun: "عجلون",
+          karak: "الكرك",
+          tafilah: "الطفيلة",
+          maan: "معان",
         };
-        
+
         return <span>{cityMap[store.city] || store.city}</span>;
       },
     },
     {
-      key: 'status',
-      title: 'الحالة',
+      key: "status",
+      title: "الحالة",
       render: (store: Store) => (
         <span
           className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
             store.isActive
-              ? 'bg-green-100 text-green-800'
-              : 'bg-red-100 text-red-800'
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
           }`}
         >
-          {store.isActive ? 'نشط' : 'غير نشط'}
+          {store.isActive ? "نشط" : "غير نشط"}
         </span>
       ),
     },
     {
-      key: 'walletBalance',
-      title: 'الرصيد',
+      key: "walletBalance",
+      title: "الرصيد",
       render: (store: Store) => (
         <span
           className={`font-semibold ${
             store.walletBalance && store.walletBalance >= 0
-              ? 'text-[hsl(var(--secondary))]'
-              : 'text-red-600'
+              ? "text-[hsl(var(--secondary))]"
+              : "text-red-600"
           }`}
         >
           {(store.walletBalance || 0).toFixed(2)} د.أ
@@ -233,8 +252,8 @@ const StoreManagement: React.FC = () => {
       ),
     },
     {
-      key: 'actions',
-      title: 'الإجراءات',
+      key: "actions",
+      title: "الإجراءات",
       render: (store: Store) => (
         <div className="flex space-x-2 space-x-reverse">
           <button
@@ -307,7 +326,7 @@ const StoreManagement: React.FC = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <form
-            onSubmit={e => e.preventDefault()}
+            onSubmit={(e) => e.preventDefault()}
             className="flex-1"
             autoComplete="off"
           >
@@ -317,7 +336,7 @@ const StoreManagement: React.FC = () => {
                 type="text"
                 placeholder="البحث باسم المتجر..."
                 value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-md focus:ring-[hsl(var(--primary))] focus:border-[hsl(var(--primary))]"
               />
             </div>
@@ -336,8 +355,8 @@ const StoreManagement: React.FC = () => {
           <div className="mt-4 pt-4 border-t border-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <select
-                value={filters.specialty || ''}
-                onChange={e =>
+                value={filters.specialty || ""}
+                onChange={(e) =>
                   setFilters({
                     ...filters,
                     specialty: e.target.value || undefined,
@@ -357,8 +376,8 @@ const StoreManagement: React.FC = () => {
                 <option value="other">أخري</option>
               </select>
               <select
-                value={filters.region || ''}
-                onChange={e =>
+                value={filters.region || ""}
+                onChange={(e) =>
                   setFilters({
                     ...filters,
                     region: e.target.value || undefined,
@@ -381,8 +400,8 @@ const StoreManagement: React.FC = () => {
                 <option value="maan">معان</option>
               </select>
               <select
-                value={filters.status || ''}
-                onChange={e =>
+                value={filters.status || ""}
+                onChange={(e) =>
                   setFilters({
                     ...filters,
                     status: e.target.value || undefined,
@@ -409,7 +428,7 @@ const StoreManagement: React.FC = () => {
       {/* Stores Table */}
       <div className="bg-white rounded-lg shadow">
         <DataTable
-          data={realData} 
+          data={realData}
           columns={columns}
           loading={loading}
           error={null}
@@ -430,17 +449,17 @@ const StoreManagement: React.FC = () => {
           onClose={() => setOpen(false)}
         />
       )}
-      
+
       {openEditeUser && selectedStore && (
-        <AddUsersForm 
-          onSuccess={() =>{
-            fetchData()
+        <AddUsersForm
+          onSuccess={() => {
+            fetchData();
           }}
-          data={selectedStore as unknown as User} 
-          onclose={() => setOpenEditeUser(false)} 
+          data={selectedStore as unknown as User}
+          onclose={() => setOpenEditeUser(false)}
         />
       )}
-      
+
       {/* Add Balance Modal */}
       {showBalanceModal && selectedStore && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">

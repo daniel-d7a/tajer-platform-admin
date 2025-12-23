@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { X } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 
 const markerIcon = new L.Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png',
+  iconUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
+  shadowUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png",
   shadowSize: [41, 41],
 });
 
@@ -24,7 +24,7 @@ interface OrderApiResponse {
       totalValue: number;
       createdAt: string;
       locationDetails: string;
-      text_id:string;
+      text_id: string;
       merchant: {
         commercialName: string;
         phone: string;
@@ -64,7 +64,7 @@ interface UserLocationResponse {
 }
 
 interface DetailsProps {
-  order: Omit<OrderApiResponse['data']['order'], 'locationDetails'> & {
+  order: Omit<OrderApiResponse["data"]["order"], "locationDetails"> & {
     locationDetails?: string;
   };
   onClose: () => void;
@@ -84,17 +84,21 @@ function extractLatLng(locationDetails?: string) {
 }
 
 const OrderDetailsModal: React.FC<DetailsProps> = ({ order, onClose }) => {
-  const [fullOrder, setFullOrder] = useState<OrderApiResponse['data'] | null>(null);
+  const [fullOrder, setFullOrder] = useState<OrderApiResponse["data"] | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
-  const [userLocation, setUserLocation] = useState<string | undefined>(undefined);
+  const [userLocation, setUserLocation] = useState<string | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     setLoading(true);
     const fetchOrderData = async () => {
       try {
         const response = await fetch(
-          `https://tajer-backend.tajerplatform.workers.dev/api/orders/orders/${order.id}`,
-          { credentials: 'include' }
+          `https://tajer-platform-api.eyadabdou862.workers.dev/api/orders/orders/${order.id}`,
+          { credentials: "include" }
         );
         const res: OrderApiResponse = await response.json();
         setFullOrder(res.data);
@@ -105,8 +109,8 @@ const OrderDetailsModal: React.FC<DetailsProps> = ({ order, onClose }) => {
     const fetchUserLocation = async () => {
       try {
         const response = await fetch(
-          `https://tajer-backend.tajerplatform.workers.dev/api/public/users/${order.merchantId}`,
-          { credentials: 'include' }
+          `https://tajer-platform-api.eyadabdou862.workers.dev/api/public/users/${order.merchantId}`,
+          { credentials: "include" }
         );
         const userData: UserLocationResponse = await response.json();
         setUserLocation(userData.locationDetails);
@@ -135,7 +139,7 @@ const OrderDetailsModal: React.FC<DetailsProps> = ({ order, onClose }) => {
   const latLng = extractLatLng(userLocation);
   const googleMapsLink = latLng
     ? `https://www.google.com/maps/search/?api=1&query=${latLng.lat},${latLng.lng}`
-    : '';
+    : "";
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
@@ -155,43 +159,66 @@ const OrderDetailsModal: React.FC<DetailsProps> = ({ order, onClose }) => {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-700">اسم التاجر</label>
-              <p className="text-sm text-gray-900">{orderData.merchant.commercialName}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">هاتف التاجر</label>
-              <p className="text-sm text-gray-900">{orderData.merchant.phone}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">الحالة</label>
+              <label className="text-sm font-medium text-gray-700">
+                اسم التاجر
+              </label>
               <p className="text-sm text-gray-900">
-                {orderData.status === 'PROCESSING'
-                  ? 'قيد المعالجة'
-                  : orderData.status === 'OUT_FOR_DELIVERY'
-                  ? 'خارج للتوصيل'
-                  : 'مكتمل'}
+                {orderData.merchant.commercialName}
               </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">القيمة الإجمالية</label>
-              <p className="text-sm text-gray-900">{orderData.totalValue.toFixed(2)} د.أ</p>
+              <label className="text-sm font-medium text-gray-700">
+                هاتف التاجر
+              </label>
+              <p className="text-sm text-gray-900">
+                {orderData.merchant.phone}
+              </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">تاريخ الإنشاء</label>
+              <label className="text-sm font-medium text-gray-700">
+                الحالة
+              </label>
               <p className="text-sm text-gray-900">
-                {new Date(orderData.createdAt).toLocaleDateString('ar-EG')}
+                {orderData.status === "PROCESSING"
+                  ? "قيد المعالجة"
+                  : orderData.status === "OUT_FOR_DELIVERY"
+                  ? "خارج للتوصيل"
+                  : "مكتمل"}
+              </p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                القيمة الإجمالية
+              </label>
+              <p className="text-sm text-gray-900">
+                {orderData.totalValue.toFixed(2)} د.أ
+              </p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                تاريخ الإنشاء
+              </label>
+              <p className="text-sm text-gray-900">
+                {new Date(orderData.createdAt).toLocaleDateString("ar-EG")}
               </p>
             </div>
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2">المنتجات</label>
+            <label className="text-sm font-medium text-gray-700 mb-2">
+              المنتجات
+            </label>
             <div className="space-y-2 border rounded p-3 max-h-60 overflow-y-auto">
               {items.length === 0 ? (
-                <div className="text-center text-gray-400">لا توجد منتجات في هذا الطلب.</div>
+                <div className="text-center text-gray-400">
+                  لا توجد منتجات في هذا الطلب.
+                </div>
               ) : (
                 items.map((item) => (
-                  <div key={item.id} className="border-b pb-2 mb-2 last:border-b-0 last:mb-0">
+                  <div
+                    key={item.id}
+                    className="border-b pb-2 mb-2 last:border-b-0 last:mb-0"
+                  >
                     <div className="flex justify-between items-center">
                       <div>
                         <span className="font-bold">
@@ -236,16 +263,22 @@ const OrderDetailsModal: React.FC<DetailsProps> = ({ order, onClose }) => {
                 className="text-blue-700 underline mb-2"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ direction: 'ltr', wordBreak: 'break-all' }}
+                style={{ direction: "ltr", wordBreak: "break-all" }}
               >
                 رابط خرائط Google Maps
               </a>
-              <div style={{ width: '100%', height: '300px', maxWidth: '600px' }}>
+              <div
+                style={{ width: "100%", height: "300px", maxWidth: "600px" }}
+              >
                 <MapContainer
                   center={[latLng.lat, latLng.lng]}
                   zoom={14}
                   scrollWheelZoom={true}
-                  style={{ width: '100%', height: '100%', borderRadius: '12px' }}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: "12px",
+                  }}
                 >
                   <TileLayer
                     attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -256,7 +289,11 @@ const OrderDetailsModal: React.FC<DetailsProps> = ({ order, onClose }) => {
                       <span>
                         موقع التاجر
                         <br />
-                        <a href={googleMapsLink} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={googleMapsLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           افتح في خرائط Google
                         </a>
                       </span>

@@ -1,20 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import DataTable from "@/components/Common/DataTable";
-import {
-  Edit,
-  Trash2,
-  Search,
-  PlusCircle,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import toast from "react-hot-toast";
-import type { GetProduct as Product } from "@/types/product";
-import type { GetCategory as Category } from "@/types/category";
 import Modal from "@/components/Common/Modal";
 import ProductForm from "@/components/products/ProductFormModal";
+import type { GetCategory as Category } from "@/types/category";
+import type { GetProduct as Product } from "@/types/product";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  PlusCircle,
+  Search,
+  Trash2,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 interface FeaturedProduct {
   id: number;
@@ -61,7 +61,7 @@ export default function FeaturedProducts() {
     try {
       setLoading(true);
       const res = await fetch(
-        "https://tajer-backend.tajerplatform.workers.dev/api/featured/featured-products",
+        "https://tajer-platform-api.eyadabdou862.workers.dev/api/featured/featured-products",
         { credentials: "include" }
       );
       const json = await res.json();
@@ -81,7 +81,7 @@ export default function FeaturedProducts() {
   ) => {
     try {
       setLoadingProducts(true);
-      const url = `https://tajer-backend.tajerplatform.workers.dev/api/public/products?categoryId=&factoryId=&search=${search}&page=${page}&limit=${limit}`;
+      const url = `https://tajer-platform-api.eyadabdou862.workers.dev/api/public/products?categoryId=&factoryId=&search=${search}&page=${page}&limit=${limit}`;
       const res = await fetch(url, { credentials: "include" });
       const json = await res.json();
 
@@ -136,7 +136,7 @@ export default function FeaturedProducts() {
   const handleAddFeatured = async (product: Product) => {
     try {
       const res = await fetch(
-        "https://tajer-backend.tajerplatform.workers.dev/api/featured/featured-products",
+        "https://tajer-platform-api.eyadabdou862.workers.dev/api/featured/featured-products",
         {
           method: "POST",
           credentials: "include",
@@ -174,7 +174,7 @@ export default function FeaturedProducts() {
       setLoadingDelete(true);
       try {
         const res = await fetch(
-          `https://tajer-backend.tajerplatform.workers.dev/api/featured/featured-products/${id}`,
+          `https://tajer-platform-api.eyadabdou862.workers.dev/api/featured/featured-products/${id}`,
           {
             credentials: "include",
             method: "DELETE",
@@ -393,10 +393,10 @@ export default function FeaturedProducts() {
                           {product.unitType === "piece_only"
                             ? "قطعة"
                             : product.unitType === "pack_only"
-                              ? "حزمة"
-                              : product.unitType === "piece_or_pack"
-                                ? "قطعة و حزمة"
-                                : product.unitType}
+                            ? "حزمة"
+                            : product.unitType === "piece_or_pack"
+                            ? "قطعة و حزمة"
+                            : product.unitType}
                         </p>
                         <button
                           onClick={() => handleAddFeatured(product)}

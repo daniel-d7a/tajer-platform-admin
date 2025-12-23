@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import DataTable from "../Common/DataTable";
-import { toast } from "react-hot-toast";
 import { RefreshCcw } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+import DataTable from "../Common/DataTable";
 
 interface User {
   id: number;
@@ -60,12 +60,11 @@ const BonusManagement: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
 
-
   const fetchData = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/admin/bonus?page=${currentPage}&limit=${pageSize}`,
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/bonus?page=${currentPage}&limit=${pageSize}`,
         { credentials: "include" }
       );
 
@@ -88,22 +87,19 @@ const BonusManagement: React.FC = () => {
     fetchData();
   }, [currentPage, pageSize]);
 
-
   const CalculateBonus = async () => {
-
-
-     const res =  await fetch(
-      "https://tajer-backend.tajerplatform.workers.dev/api/admin/bonus/calculate",
+    const res = await fetch(
+      "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/bonus/calculate",
       {
         method: "POST",
         credentials: "include",
       }
     );
- 
-    if(!res.ok){
-      toast.error('حدث خطأ اثناء الحساب جرب مره أخري')
-    }else{
-         fetchData();
+
+    if (!res.ok) {
+      toast.error("حدث خطأ اثناء الحساب جرب مره أخري");
+    } else {
+      fetchData();
     }
   };
   const getReasonText = (reason: string) => {

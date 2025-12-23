@@ -1,10 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Store, Users, TrendingUp, Activity, DollarSign, Percent, Truck } from 'lucide-react';
-import StatCard from '../components/Dashboard/StatCard';
-import SalesChart from '../components/Dashboard/SalesChart';
-import TopPerformers from '../components/Dashboard/TopPerformers';
-import RecentOrders from '../components/Dashboard/RecentOrders';
-import toast from 'react-hot-toast';
+import {
+  Activity,
+  DollarSign,
+  Percent,
+  Store,
+  TrendingUp,
+  Truck,
+  Users,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import RecentOrders from "../components/Dashboard/RecentOrders";
+import SalesChart from "../components/Dashboard/SalesChart";
+import StatCard from "../components/Dashboard/StatCard";
+import TopPerformers from "../components/Dashboard/TopPerformers";
 type OverviewType = {
   totalStores: number;
   activeStores: number;
@@ -40,52 +48,62 @@ const Dashboard: React.FC = () => {
   const [topMerchants, setTopMerchants] = useState<TopMerchant[]>([]);
   const [topSalesReps, setTopSalesReps] = useState<TopSalesRep[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [orders,setOrders] = useState([])
-  const [status,setStatus] = useState([])
-
+  const [orders, setOrders] = useState([]);
+  const [status, setStatus] = useState([]);
 
   const Status = async () => {
-    try{
-      const data = await fetch('https://tajer-backend.tajerplatform.workers.dev/api/admin/stats/total-sales-per-month',{credentials:'include'});
-      const res = await data.json()
-      setStatus(res)
-    }catch{
-      toast.error('حدث خطا اثناء تحميل البيانات يرجي المحاوله مره اخري ')
+    try {
+      const data = await fetch(
+        "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/stats/total-sales-per-month",
+        { credentials: "include" }
+      );
+      const res = await data.json();
+      setStatus(res);
+    } catch {
+      toast.error("حدث خطا اثناء تحميل البيانات يرجي المحاوله مره اخري ");
     }
-  }
-   const recentOrders = async () =>{
-      const Data = await fetch('https://tajer-backend.tajerplatform.workers.dev/api/orders/orders?limit=&page=&status=PENDING&from=&to=',{credentials:'include'});
-      const res = await Data.json();
-      setOrders(res.data);
-    };
+  };
+  const recentOrders = async () => {
+    const Data = await fetch(
+      "https://tajer-platform-api.eyadabdou862.workers.dev/api/orders/orders?limit=&page=&status=PENDING&from=&to=",
+      { credentials: "include" }
+    );
+    const res = await Data.json();
+    setOrders(res.data);
+  };
   const fetchOverview = async () => {
-      try {
-        const res = await fetch(
-          'https://tajer-backend.tajerplatform.workers.dev/api/admin/overview',
-          { credentials: 'include' }
-        );
-        const data: OverviewType = await res.json();
-        setOverview(data);
-      } finally{
-        console.log('success')
-      }
-    };
-    const fetchLeaderboards = async () => {
-      try {
-        const res = await fetch(
-          'https://tajer-backend.tajerplatform.workers.dev/api/admin/stats/leaderboards',
-          { credentials: 'include' }
-        );
-        const data: LeaderboardType = await res.json();
-        setTopMerchants(data.topMerchants || []);
-        setTopSalesReps(data.topSalesReps || []);
-      } finally {
-        console.log('success')
-      }
-    };
+    try {
+      const res = await fetch(
+        "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/overview",
+        { credentials: "include" }
+      );
+      const data: OverviewType = await res.json();
+      setOverview(data);
+    } finally {
+      console.log("success");
+    }
+  };
+  const fetchLeaderboards = async () => {
+    try {
+      const res = await fetch(
+        "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/stats/leaderboards",
+        { credentials: "include" }
+      );
+      const data: LeaderboardType = await res.json();
+      setTopMerchants(data.topMerchants || []);
+      setTopSalesReps(data.topSalesReps || []);
+    } finally {
+      console.log("success");
+    }
+  };
   useEffect(() => {
     setLoading(true);
-    Promise.all([fetchOverview(), fetchLeaderboards(), recentOrders(),Status()]).finally(() => setLoading(false));
+    Promise.all([
+      fetchOverview(),
+      fetchLeaderboards(),
+      recentOrders(),
+      Status(),
+    ]).finally(() => setLoading(false));
   }, []);
   if (loading || !overview) {
     return (
@@ -107,41 +125,45 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
           title="إجمالي المتاجر"
-          value={overview.totalStores??0}
-          change={overview.storesChange??0}
+          value={overview.totalStores ?? 0}
+          change={overview.storesChange ?? 0}
           icon={Store}
           color="primary"
         />
         <StatCard
           title="المتاجر النشطة"
           value={overview.activeStores ?? 0}
-          change={overview.activeStoresChangePercentage??0}
+          change={overview.activeStoresChangePercentage ?? 0}
           icon={Activity}
           color="secondary"
         />
         <StatCard
           title="المتاجر الجديدة"
-          value={overview.newStores??0}
-          change={overview.newStoresChangePercentage??0}
+          value={overview.newStores ?? 0}
+          change={overview.newStoresChangePercentage ?? 0}
           icon={TrendingUp}
           color="primary"
         />
         <StatCard
           title="إجمالي المندوبين"
-          value={overview.totalRepresentatives??0}
-          change={overview.representativesChangePercentage??0}
+          value={overview.totalRepresentatives ?? 0}
+          change={overview.representativesChangePercentage ?? 0}
           icon={Users}
           color="secondary"
         />
-           <StatCard
+        <StatCard
           title="إجمالي العمولات المدفوعه "
-          value={overview.totalCommission === 0 ?"لا توجد نسبه عموله" :  (overview.totalCommission + " د.أ")}
+          value={
+            overview.totalCommission === 0
+              ? "لا توجد نسبه عموله"
+              : overview.totalCommission + " د.أ"
+          }
           icon={Percent}
           color="secondary"
         />
-           <StatCard 
+        <StatCard
           title="عدد الطلبات اليوم "
-          value={overview.todayOrders??0}
+          value={overview.todayOrders ?? 0}
           icon={Truck}
           color="secondary"
         />
@@ -162,12 +184,12 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="text-left">
             <div className="text-3xl font-bold text-white/80">
-              {overview.totalSales?.toFixed(2) ?? '0.00'} د.أ
+              {overview.totalSales?.toFixed(2) ?? "0.00"} د.أ
             </div>
           </div>
         </div>
       </div>
- 
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">

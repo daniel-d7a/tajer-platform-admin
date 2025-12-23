@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { X } from "lucide-react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import ConfirmRole from "./confirmRole";
-import { X } from "lucide-react";
 
 interface User {
   id: number;
@@ -19,14 +19,13 @@ interface User {
   referralCode: string;
 }
 
-interface AddUserProps { 
+interface AddUserProps {
   onclose: () => void;
   data?: User | null;
   onSuccess?: () => void;
-};
+}
 
 export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
-
   const [userInfo, setUserInfo] = useState<Partial<User>>({});
   const [formData, setFormData] = useState({
     commercialName: "",
@@ -53,7 +52,7 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
     { value: "coffee shop", label: "محل قهوه" },
     { value: "cafe", label: "قاهيه" },
     { value: "library", label: "مكتبه" },
-    { value: "other", label: "أخري" }
+    { value: "other", label: "أخري" },
   ];
 
   const cities = [
@@ -68,25 +67,26 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
     { value: "ajloun", label: "عجلون" },
     { value: "karak", label: "الكرك" },
     { value: "tafilah", label: "الطفيلة" },
-    { value: "maan", label: "معان" }
+    { value: "maan", label: "معان" },
   ];
 
   const GetUserInformation = async () => {
     try {
       const res = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/public/users/${data?.id}` , {credentials:'include'}
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/public/users/${data?.id}`,
+        { credentials: "include" }
       );
       const info = await res.json();
       setUserInfo(info);
-    } catch  {
+    } catch {
       toast.error("فشل في جلب بيانات المستخدم");
-    };
+    }
   };
 
   useEffect(() => {
-    if(data) {
+    if (data) {
       GetUserInformation();
-    };
+    }
     //eslint-disable-next-line
   }, [data]);
 
@@ -113,50 +113,53 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
       toast.error("رقم الهاتف غير صحيح");
       return false;
     }
-    
+
     if (!data && !formData.password) {
       toast.error("كلمة السر مطلوبة");
       return false;
     }
-    
+
     if (formData.password && formData.password !== formData.confirmPassword) {
       toast.error("يجب ان تكون كلمة السر وتأكيدها متطابقتان!");
       return false;
     }
-    
+
     if (formData.password && formData.password.length < 8) {
       toast.error("كلمة السر يجب أن تكون 8 حروف/أرقام على الأقل");
       return false;
     }
-    
+
     if (formData.commercialName.length < 2) {
       toast.error("يجب أن يحتوي اسم المحل على أكثر من حرفين");
       return false;
     }
-    
+
     if (formData.area.length < 2) {
       toast.error("يجب أن يحتوي اسم المنطقة على أكثر من حرفين");
       return false;
     }
-    
+
     if (formData.city.length < 2) {
       toast.error("يجب أن تحتوي المدينة على أكثر من حرفين");
       return false;
     }
-    
-    if ((formData.role === "ADMIN" || formData.role === "SALES_REP") && !formData.email) {
+
+    if (
+      (formData.role === "ADMIN" || formData.role === "SALES_REP") &&
+      !formData.email
+    ) {
       toast.error("البريد الإلكتروني إلزامي للأدمن ومندوب المبيعات");
       return false;
     }
-    
+
     return true;
   };
 
   const handleSendAPI = async () => {
     try {
       const url = data
-        ? `https://tajer-backend.tajerplatform.workers.dev/api/admin/users/${data.id}`
-        : "https://tajer-backend.tajerplatform.workers.dev/api/admin/users";
+        ? `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/users/${data.id}`
+        : "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/users";
 
       const method = data ? "PUT" : "POST";
 
@@ -182,7 +185,7 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
         device: null,
         lang: null,
         otp: null,
-        hasVerifiedPhone: null
+        hasVerifiedPhone: null,
       };
 
       if (!data && formData.password) {
@@ -199,7 +202,9 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
       const result = await res.json();
 
       if (res.ok) {
-        toast.success(data ? "تم تعديل المستخدم بنجاح" : "تم إنشاء المستخدم بنجاح");
+        toast.success(
+          data ? "تم تعديل المستخدم بنجاح" : "تم إنشاء المستخدم بنجاح"
+        );
         if (!data) {
           setFormData({
             commercialName: "",
@@ -218,7 +223,10 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
         onSuccess?.();
         onclose();
       } else {
-        const errorMessage = result.error?.issues?.[0]?.message || result.message || "حاول مره أخرى";
+        const errorMessage =
+          result.error?.issues?.[0]?.message ||
+          result.message ||
+          "حاول مره أخرى";
         toast.error("حصل خطأ: " + errorMessage);
       }
     } catch {
@@ -240,7 +248,8 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
     }
   };
 
-  const isBusinessTypeDisabled = formData.role === "ADMIN" || formData.role === "SALES_REP";
+  const isBusinessTypeDisabled =
+    formData.role === "ADMIN" || formData.role === "SALES_REP";
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
@@ -259,9 +268,9 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
               setLoading(false);
             }}
             role={formData.role}
-            text={`هل انت متأكد أنك تريد ${
-              data ? "تعديل" : "إنشاء"
-            } حساب ${formData.role === "SALES_REP" ? "مندوب مبيعات" : "أدمن"}`}
+            text={`هل انت متأكد أنك تريد ${data ? "تعديل" : "إنشاء"} حساب ${
+              formData.role === "SALES_REP" ? "مندوب مبيعات" : "أدمن"
+            }`}
           />
         )}
 
@@ -302,7 +311,9 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
               type="text"
               placeholder="ادخل رقم الهاتف"
               value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
               className="border-1 border-gray-300 rounded px-2 py-1 w-full"
               required
             />
@@ -320,15 +331,17 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
               type="email"
               value={formData.email}
               placeholder={
-                formData.role === "ADMIN" || formData.role === "SALES_REP" 
-                  ? "ادخل البريد الإلكتروني (إلزامي)" 
+                formData.role === "ADMIN" || formData.role === "SALES_REP"
+                  ? "ادخل البريد الإلكتروني (إلزامي)"
                   : "ادخل البريد الإلكتروني (اختياري)"
               }
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
               className="border-1 border-gray-300 rounded px-2 py-1 w-full"
-              required={formData.role === "ADMIN" || formData.role === "SALES_REP"}
+              required={
+                formData.role === "ADMIN" || formData.role === "SALES_REP"
+              }
             />
           </div>
 
@@ -353,7 +366,11 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
             <input
               type="password"
               id="password"
-              placeholder={data ? "اتركه فارغاً للحفاظ على كلمة السر الحالية" : "ادخل كلمة السر (8 أحرف على الأقل)"}
+              placeholder={
+                data
+                  ? "اتركه فارغاً للحفاظ على كلمة السر الحالية"
+                  : "ادخل كلمة السر (8 أحرف على الأقل)"
+              }
               value={formData.password}
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
@@ -370,7 +387,11 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
             </label>
             <input
               type="password"
-              placeholder={data ? "اتركه فارغاً للحفاظ على كلمة السر الحالية" : "تأكيد كلمة السر"}
+              placeholder={
+                data
+                  ? "اتركه فارغاً للحفاظ على كلمة السر الحالية"
+                  : "تأكيد كلمة السر"
+              }
               id="confirmPassword"
               value={formData.confirmPassword}
               onChange={(e) =>
@@ -403,7 +424,9 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
               ))}
             </select>
             {isBusinessTypeDisabled && (
-              <p className="text-xs text-gray-500 mt-1">نوع النشاط معطل للأدمن ومندوب المبيعات</p>
+              <p className="text-xs text-gray-500 mt-1">
+                نوع النشاط معطل للأدمن ومندوب المبيعات
+              </p>
             )}
           </div>
 
@@ -416,10 +439,13 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
               value={formData.role}
               onChange={(e) => {
                 const newRole = e.target.value;
-                setFormData({ 
-                  ...formData, 
+                setFormData({
+                  ...formData,
                   role: newRole,
-                  businessType: (newRole === "ADMIN" || newRole === "SALES_REP") ? "other" : formData.businessType
+                  businessType:
+                    newRole === "ADMIN" || newRole === "SALES_REP"
+                      ? "other"
+                      : formData.businessType,
                 });
               }}
               className="border-1 border-gray-300 rounded px-2 py-1 w-full"
@@ -438,7 +464,9 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
             <select
               id="city"
               value={formData.city}
-              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, city: e.target.value })
+              }
               className="border-1 border-gray-300 rounded px-2 py-1 w-full"
               required
             >
@@ -459,34 +487,35 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
               placeholder="ادخل المنطقة (حد أدنى حرفين)"
               type="text"
               value={formData.area}
-              onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, area: e.target.value })
+              }
               className="border-1 border-gray-300 rounded px-2 py-1 w-full"
               required
               minLength={2}
             />
           </div>
-              {formData.role === 'MERCHANT' && (
-                <>
-                 <div>
-            <label htmlFor="referralCode" className="block mb-1">
-              الكود التصنيفي
-            </label>
-            <input
-              type="text"
-              placeholder="ادخل الكود التصنيفي (اختياري)"
-              id="referralCode"
-              value={formData.referralCode}
-              onChange={(e) =>
-                setFormData({ ...formData, referralCode: e.target.value })
-              }
-              className="border-1 border-gray-300 rounded px-2 py-1 w-full"
-            />
-                </div>
-                <div></div>
-                </>
-              )}
-         
-         
+          {formData.role === "MERCHANT" && (
+            <>
+              <div>
+                <label htmlFor="referralCode" className="block mb-1">
+                  الكود التصنيفي
+                </label>
+                <input
+                  type="text"
+                  placeholder="ادخل الكود التصنيفي (اختياري)"
+                  id="referralCode"
+                  value={formData.referralCode}
+                  onChange={(e) =>
+                    setFormData({ ...formData, referralCode: e.target.value })
+                  }
+                  className="border-1 border-gray-300 rounded px-2 py-1 w-full"
+                />
+              </div>
+              <div></div>
+            </>
+          )}
+
           <button
             type="submit"
             disabled={loading}
@@ -510,6 +539,6 @@ export default function AddUser({ onclose, data, onSuccess }: AddUserProps) {
           </button>
         </form>
       </div>
-    </div> 
+    </div>
   );
-};
+}

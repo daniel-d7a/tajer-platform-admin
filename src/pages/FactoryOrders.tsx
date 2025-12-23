@@ -1,27 +1,27 @@
-import { useState, useEffect } from 'react';
-import {
-  Factory,
-  RefreshCw,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Eye,
-  Calendar,
-  FileText,
-  Sheet,
-} from 'lucide-react';
-import toast from 'react-hot-toast';
-import DataTable from '@/components/Common/DataTable';
+import DataTable from "@/components/Common/DataTable";
+import FactoryformModule from "@/components/factory/factoryformModule";
 import type {
   GetFactoryOrderAggregate as FactoryOrder,
   FactoryOrderStatus,
-} from '@/types/factory';
-import FactoryformModule from '@/components/factory/factoryformModule';
+} from "@/types/factory";
+import {
+  AlertCircle,
+  Calendar,
+  CheckCircle,
+  Eye,
+  Factory,
+  FileText,
+  RefreshCw,
+  Sheet,
+  XCircle,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const STATUS_LABELS: Record<FactoryOrderStatus, string> = {
-  ORDERED_FROM_FACTORY: 'تم الطلب من المصنع',
-  ARRIVED_AT_WAREHOUSE: 'وصل المستودع',
-  PENDING_FACTORY: 'قيد الانتظار',
+  ORDERED_FROM_FACTORY: "تم الطلب من المصنع",
+  ARRIVED_AT_WAREHOUSE: "وصل المستودع",
+  PENDING_FACTORY: "قيد الانتظار",
 };
 
 interface FactoryBatchesResponse {
@@ -38,7 +38,9 @@ interface FactoryBatchesResponse {
 
 const FactoryOrders: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<FactoryOrder | null>(null);
-  const [factoryOrdersData, setFactoryOrdersData] = useState<FactoryOrder[]>([]);
+  const [factoryOrdersData, setFactoryOrdersData] = useState<FactoryOrder[]>(
+    []
+  );
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
@@ -49,12 +51,14 @@ const FactoryOrders: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<number | null>(null);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState<number | null>(null);
-  const [isDownloadingExcel, setIsDownloadingExcel] = useState<number | null>(null);
+  const [isDownloadingExcel, setIsDownloadingExcel] = useState<number | null>(
+    null
+  );
   const [isGeneratingOrders, setIsGeneratingOrders] = useState(false);
 
   // Build API URL
   const buildApiUrl = () => {
-    return `https://tajer-backend.tajerplatform.workers.dev/api/admin/factory-batches?page=${pagination.page}&limit=${pagination.limit}`;
+    return `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/factory-batches?page=${pagination.page}&limit=${pagination.limit}`;
   };
 
   // Fetch orders function
@@ -62,24 +66,24 @@ const FactoryOrders: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(buildApiUrl(), { credentials: 'include' });
-      
+      const response = await fetch(buildApiUrl(), { credentials: "include" });
+
       if (!response.ok) {
-        throw new Error('فشل في تحميل البيانات');
+        throw new Error("فشل في تحميل البيانات");
       }
-      
+
       const res: FactoryBatchesResponse = await response.json();
       setFactoryOrdersData(res.data ?? []);
-      setPagination(prev => ({
+      setPagination((prev) => ({
         ...prev,
         page,
         total: res.meta.total,
         last_page: res.meta.last_page,
       }));
     } catch (err) {
-      setError('فشل في تحميل البيانات');
+      setError("فشل في تحميل البيانات");
       setFactoryOrdersData([]);
-      toast.error('فشل في تحميل البيانات');
+      toast.error("فشل في تحميل البيانات");
     } finally {
       setIsLoading(false);
     }
@@ -91,34 +95,37 @@ const FactoryOrders: React.FC = () => {
   }, []);
 
   // Update status function
-  const updateFactoryOrderStatus = async (factoryId: number, status: FactoryOrderStatus) => {
+  const updateFactoryOrderStatus = async (
+    factoryId: number,
+    status: FactoryOrderStatus
+  ) => {
     try {
       setIsUpdatingStatus(factoryId);
       const response = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/admin/factory-batches/${factoryId}`,
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/factory-batches/${factoryId}`,
         {
-          method: 'PUT',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
+          method: "PUT",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status }),
         }
       );
-      
+
       const res = await response.json();
-      
+
       if (res.success) {
-        toast.success('تم تحديث حالة الطلب بنجاح');
+        toast.success("تم تحديث حالة الطلب بنجاح");
         // Update local state
-        setFactoryOrdersData(prev => 
-          prev.map(order => 
+        setFactoryOrdersData((prev) =>
+          prev.map((order) =>
             order.id === factoryId ? { ...order, status } : order
           )
         );
       } else {
-        toast.error('حدث خطأ في تحديث حالة الطلب');
+        toast.error("حدث خطأ في تحديث حالة الطلب");
       }
     } catch {
-      toast.error('حدث خطأ في تحديث حالة الطلب');
+      toast.error("حدث خطأ في تحديث حالة الطلب");
     } finally {
       setIsUpdatingStatus(null);
     }
@@ -129,23 +136,27 @@ const FactoryOrders: React.FC = () => {
     try {
       setIsGeneratingOrders(true);
       const response = await fetch(
-        'https://tajer-backend.tajerplatform.workers.dev/api/admin/factory-batches',
+        "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/factory-batches",
         {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ batchTime: '10:00' }),
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ batchTime: "10:00" }),
         }
       );
-      
+
       if (response.ok) {
-        toast.success('تم إنشاء طلبات المصنع بنجاح');
+        toast.success("تم إنشاء طلبات المصنع بنجاح");
         fetchOrders(1); // Refresh data
       } else {
-        toast.error('حدث خطأ في إنشاء طلبات المصنع تحقق من وجود طلبات جديده لإضافتها !');
+        toast.error(
+          "حدث خطأ في إنشاء طلبات المصنع تحقق من وجود طلبات جديده لإضافتها !"
+        );
       }
     } catch {
-      toast.error('حدث خطأ في إنشاء طلبات المصنع تحقق من وجود طلبات جديده لإضافتها !');
+      toast.error(
+        "حدث خطأ في إنشاء طلبات المصنع تحقق من وجود طلبات جديده لإضافتها !"
+      );
     } finally {
       setIsGeneratingOrders(false);
     }
@@ -156,17 +167,17 @@ const FactoryOrders: React.FC = () => {
     try {
       setIsDownloadingPdf(factoryId);
       const response = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/admin/factory-batches/${factoryId}/pdf`,
-        { 
-          credentials: 'include',
-          method: 'GET'
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/factory-batches/${factoryId}/pdf`,
+        {
+          credentials: "include",
+          method: "GET",
         }
       );
-      
+
       if (!response.ok) {
-        throw new Error('فشل في تحميل الملف');
+        throw new Error("فشل في تحميل الملف");
       }
-      
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -176,9 +187,9 @@ const FactoryOrders: React.FC = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast.success('تم تحميل الملف PDF بنجاح');
+      toast.success("تم تحميل الملف PDF بنجاح");
     } catch {
-      toast.error('حدث خطأ في تحميل الملف');
+      toast.error("حدث خطأ في تحميل الملف");
     } finally {
       setIsDownloadingPdf(null);
     }
@@ -189,17 +200,17 @@ const FactoryOrders: React.FC = () => {
     try {
       setIsDownloadingExcel(factoryId);
       const response = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/admin/factory-batches/${factoryId}/excel`,
-        { 
-          credentials: 'include',
-          method: 'GET'
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/factory-batches/${factoryId}/excel`,
+        {
+          credentials: "include",
+          method: "GET",
         }
       );
-      
+
       if (!response.ok) {
-        throw new Error('فشل في تحميل الملف');
+        throw new Error("فشل في تحميل الملف");
       }
-      
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -209,9 +220,9 @@ const FactoryOrders: React.FC = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast.success('تم تحميل الملف Excel بنجاح');
+      toast.success("تم تحميل الملف Excel بنجاح");
     } catch {
-      toast.error('حدث خطأ في تحميل الملف');
+      toast.error("حدث خطأ في تحميل الملف");
     } finally {
       setIsDownloadingExcel(null);
     }
@@ -219,23 +230,23 @@ const FactoryOrders: React.FC = () => {
 
   // Pagination handlers for DataTable
   const handlePageChange = (page: number) => {
-    setPagination(prev => ({ ...prev, page }));
+    setPagination((prev) => ({ ...prev, page }));
     fetchOrders(page);
   };
 
   const handlePageSizeChange = (pageSize: number) => {
-    setPagination(prev => ({ ...prev, limit: pageSize, page: 1 }));
+    setPagination((prev) => ({ ...prev, limit: pageSize, page: 1 }));
     fetchOrders(1);
   };
 
   // Helpers
   const getStatusIcon = (status: FactoryOrderStatus) => {
     switch (status) {
-      case 'ORDERED_FROM_FACTORY':
+      case "ORDERED_FROM_FACTORY":
         return <AlertCircle className="h-5 w-5 text-yellow-500" />;
-      case 'ARRIVED_AT_WAREHOUSE':
+      case "ARRIVED_AT_WAREHOUSE":
         return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'PENDING_FACTORY':
+      case "PENDING_FACTORY":
       default:
         return <XCircle className="h-5 w-5 text-gray-500" />;
     }
@@ -243,32 +254,30 @@ const FactoryOrders: React.FC = () => {
 
   const getStatusColor = (status: FactoryOrderStatus) => {
     switch (status) {
-      case 'ORDERED_FROM_FACTORY':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'ARRIVED_AT_WAREHOUSE':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'PENDING_FACTORY':
+      case "ORDERED_FROM_FACTORY":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "ARRIVED_AT_WAREHOUSE":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "PENDING_FACTORY":
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
-
-
   // Format date for display
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-EG', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    return new Date(dateString).toLocaleDateString("ar-EG", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   // DataTable columns
   const columns = [
     {
-      key: 'factoryName',
-      title: 'تاريخ المصنع',
+      key: "factoryName",
+      title: "تاريخ المصنع",
       render: (order: FactoryOrder) => (
         <div className="flex items-center gap-3">
           <Factory className="h-6 w-6 text-[hsl(var(--primary))]" />
@@ -287,30 +296,37 @@ const FactoryOrders: React.FC = () => {
       ),
     },
     {
-      key: 'totalCost',
-      title: 'التكلفة الإجمالية',
+      key: "totalCost",
+      title: "التكلفة الإجمالية",
       render: (order: FactoryOrder) => (
         <span className="font-semibold text-gray-900">
-          {order.totalCost?.toFixed(2) || '0.00'} د.أ
+          {order.totalCost?.toFixed(2) || "0.00"} د.أ
         </span>
       ),
     },
     {
-      key: 'status',
-      title: 'الحالة',
+      key: "status",
+      title: "الحالة",
       render: (order: FactoryOrder) => (
         <div className="flex items-center gap-3">
           {getStatusIcon(order.status)}
           <div className="flex gap-2">
-            {(['ORDERED_FROM_FACTORY', 'ARRIVED_AT_WAREHOUSE'] as FactoryOrderStatus[]).map(status => (
+            {(
+              [
+                "ORDERED_FROM_FACTORY",
+                "ARRIVED_AT_WAREHOUSE",
+              ] as FactoryOrderStatus[]
+            ).map((status) => (
               <button
                 key={status}
                 onClick={() => updateFactoryOrderStatus(order.id, status)}
-                disabled={isUpdatingStatus === order.id || order.status === status}
+                disabled={
+                  isUpdatingStatus === order.id || order.status === status
+                }
                 className={`px-3 py-1 text-xs font-medium rounded-full border transition-colors cursor-pointer ${
                   order.status === status
                     ? getStatusColor(status)
-                    : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                    : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {STATUS_LABELS[status]}
@@ -321,8 +337,8 @@ const FactoryOrders: React.FC = () => {
       ),
     },
     {
-      key: 'actions',
-      title: 'الإجراءات',
+      key: "actions",
+      title: "الإجراءات",
       render: (order: FactoryOrder) => (
         <div className="flex gap-2">
           <button
@@ -362,7 +378,9 @@ const FactoryOrders: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-900">طلبات المصنع</h1>
-          <p className="mt-1 text-sm text-gray-500">إدارة الطلبات على مستوى المصنع</p>
+          <p className="mt-1 text-sm text-gray-500">
+            إدارة الطلبات على مستوى المصنع
+          </p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
           <button
@@ -371,14 +389,16 @@ const FactoryOrders: React.FC = () => {
             className="inline-flex items-center justify-center px-4 py-2 bg-[hsl(var(--primary))] text-white rounded-md hover:bg-[hsl(var(--primary))]/90 disabled:opacity-50 cursor-pointer transition-colors duration-200 flex-1 sm:flex-none"
           >
             <Factory className="h-4 w-4 ml-2" />
-            {isGeneratingOrders ? 'جاري الإنشاء...' : 'إنشاء طلبات المصنع'}
+            {isGeneratingOrders ? "جاري الإنشاء..." : "إنشاء طلبات المصنع"}
           </button>
           <button
             onClick={() => fetchOrders(1)}
             disabled={isLoading}
             className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition-colors duration-200"
           >
-            <RefreshCw className={`h-4 w-4 ml-2 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-4 w-4 ml-2 ${isLoading ? "animate-spin" : ""}`}
+            />
             تحديث
           </button>
         </div>
@@ -391,9 +411,15 @@ const FactoryOrders: React.FC = () => {
             <div className="flex items-center">
               <XCircle className="h-8 w-8 text-gray-500 ml-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">قيد الانتظار</p>
+                <p className="text-sm font-medium text-gray-600">
+                  قيد الانتظار
+                </p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {factoryOrdersData.filter(order => order.status === 'PENDING_FACTORY').length}
+                  {
+                    factoryOrdersData.filter(
+                      (order) => order.status === "PENDING_FACTORY"
+                    ).length
+                  }
                 </p>
               </div>
             </div>
@@ -404,7 +430,11 @@ const FactoryOrders: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">تم الطلب</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {factoryOrdersData.filter(order => order.status === 'ORDERED_FROM_FACTORY').length}
+                  {
+                    factoryOrdersData.filter(
+                      (order) => order.status === "ORDERED_FROM_FACTORY"
+                    ).length
+                  }
                 </p>
               </div>
             </div>
@@ -413,9 +443,15 @@ const FactoryOrders: React.FC = () => {
             <div className="flex items-center">
               <CheckCircle className="h-8 w-8 text-green-500 ml-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">وصل المستودع</p>
+                <p className="text-sm font-medium text-gray-600">
+                  وصل المستودع
+                </p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {factoryOrdersData.filter(order => order.status === 'ARRIVED_AT_WAREHOUSE').length}
+                  {
+                    factoryOrdersData.filter(
+                      (order) => order.status === "ARRIVED_AT_WAREHOUSE"
+                    ).length
+                  }
                 </p>
               </div>
             </div>
@@ -447,16 +483,14 @@ const FactoryOrders: React.FC = () => {
           <h3 className="text-lg font-medium text-gray-900 mb-2">
             لا توجد طلبات مصنع
           </h3>
-          <p className="text-gray-500 mb-6">
-            لم يتم إنشاء طلبات للمصنع بعد
-          </p>
+          <p className="text-gray-500 mb-6">لم يتم إنشاء طلبات للمصنع بعد</p>
           <button
             onClick={generateFactoryOrders}
             disabled={isGeneratingOrders}
             className="inline-flex items-center px-4 py-2 bg-[hsl(var(--primary))] text-white rounded-md hover:bg-[hsl(var(--primary))]/90 cursor-pointer disabled:opacity-50"
           >
             <Factory className="h-4 w-4 ml-2" />
-            {isGeneratingOrders ? 'جاري الإنشاء...' : 'إنشاء طلبات جديدة'}
+            {isGeneratingOrders ? "جاري الإنشاء..." : "إنشاء طلبات جديدة"}
           </button>
         </div>
       )}

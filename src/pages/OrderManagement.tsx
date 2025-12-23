@@ -1,14 +1,22 @@
-'use client';
-import type React from 'react';
-import { useEffect, useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Filter, Eye, Edit, RefreshCw, Calendar, FileText, Sheet } from 'lucide-react';
-import toast from 'react-hot-toast';
-import DataTable from '@/components/Common/DataTable';
-import FilterPanel from '@/components/Orders/FilterPanel';
-import OrderDetailsModal from '@/components/Orders/OrderDetailsModal';
-import StatusUpdateModal from '@/components/Orders/StatusUpdateModal';
-import type { GetOrder, OrderFilters } from '@/types/order';
+"use client";
+import DataTable from "@/components/Common/DataTable";
+import FilterPanel from "@/components/Orders/FilterPanel";
+import OrderDetailsModal from "@/components/Orders/OrderDetailsModal";
+import StatusUpdateModal from "@/components/Orders/StatusUpdateModal";
+import type { GetOrder, OrderFilters } from "@/types/order";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  Calendar,
+  Edit,
+  Eye,
+  FileText,
+  Filter,
+  RefreshCw,
+  Sheet,
+} from "lucide-react";
+import type React from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const OrderManagement: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
@@ -21,26 +29,27 @@ const OrderManagement: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [data, setData] = useState<GetOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const queryClient = useQueryClient();
 
   const buildApiUrl = () => {
-    const baseUrl = 'https://tajer-backend.tajerplatform.workers.dev/api/orders/orders';
+    const baseUrl =
+      "https://tajer-platform-api.eyadabdou862.workers.dev/api/orders/orders";
     const params = new URLSearchParams();
-    
-    if (filters.status && String(filters.status).trim() !== '') {
-      params.append('status', filters.status);
+
+    if (filters.status && String(filters.status).trim() !== "") {
+      params.append("status", filters.status);
     }
-    if (filters.from && filters.from.trim() !== '') {
-      params.append('from', filters.from);
+    if (filters.from && filters.from.trim() !== "") {
+      params.append("from", filters.from);
     }
-    if (filters.to && filters.to.trim() !== '') {
-      params.append('to', filters.to);
+    if (filters.to && filters.to.trim() !== "") {
+      params.append("to", filters.to);
     }
-    
-    params.append('page', currentPage.toString());
-    params.append('limit', pageSize.toString());
-    
+
+    params.append("page", currentPage.toString());
+    params.append("limit", pageSize.toString());
+
     return `${baseUrl}?${params.toString()}`;
   };
 
@@ -48,16 +57,16 @@ const OrderManagement: React.FC = () => {
     try {
       setLoading(true);
       const url = buildApiUrl();
-      const res = await fetch(url, { credentials: 'include' });
+      const res = await fetch(url, { credentials: "include" });
       const responseData = await res.json();
 
       setData(responseData.data || []);
       setTotal(responseData.meta?.total || 0);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error("Error fetching orders:", error);
       setLoading(false);
-      toast.error('حدث خطأ في تحميل البيانات');
+      toast.error("حدث خطأ في تحميل البيانات");
     }
   };
 
@@ -70,17 +79,17 @@ const OrderManagement: React.FC = () => {
   const downloadPdfMutation = useMutation({
     mutationFn: async (orderId: number) => {
       const response = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/orders/orders/${orderId}/pdf`,
-        { 
-          credentials: 'include',
-          method: 'GET'
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/orders/orders/${orderId}/pdf`,
+        {
+          credentials: "include",
+          method: "GET",
         }
       );
-      
+
       if (!response.ok) {
-        throw new Error('فشل في تحميل الملف');
+        throw new Error("فشل في تحميل الملف");
       }
-      
+
       const blob = await response.blob();
       return { blob, orderId };
     },
@@ -93,26 +102,26 @@ const OrderManagement: React.FC = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast.success('تم تحميل الملف PDF بنجاح');
+      toast.success("تم تحميل الملف PDF بنجاح");
     },
-    onError: () => toast.error('حدث خطأ في تحميل الملف'),
+    onError: () => toast.error("حدث خطأ في تحميل الملف"),
   });
 
   // Download Excel for single order
   const downloadExcelMutation = useMutation({
     mutationFn: async (orderId: number) => {
       const response = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/orders/orders/${orderId}/excel`,
-        { 
-          credentials: 'include',
-          method: 'GET'
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/orders/orders/${orderId}/excel`,
+        {
+          credentials: "include",
+          method: "GET",
         }
       );
-      
+
       if (!response.ok) {
-        throw new Error('فشل في تحميل الملف');
+        throw new Error("فشل في تحميل الملف");
       }
-      
+
       const blob = await response.blob();
       return { blob, orderId };
     },
@@ -125,69 +134,73 @@ const OrderManagement: React.FC = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast.success('تم تحميل الملف Excel بنجاح');
+      toast.success("تم تحميل الملف Excel بنجاح");
     },
-    onError: () => toast.error('حدث خطأ في تحميل الملف'),
+    onError: () => toast.error("حدث خطأ في تحميل الملف"),
   });
 
-
-
   const updateOrderStatusMutation = useMutation({
-    mutationFn: async ({ orderId, status }: { orderId: number; status: string }) => {
+    mutationFn: async ({
+      orderId,
+      status,
+    }: {
+      orderId: number;
+      status: string;
+    }) => {
       const response = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/orders/orders/${orderId}`,
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/orders/orders/${orderId}`,
         {
-          method: 'PUT',
-          credentials: 'include',
+          method: "PUT",
+          credentials: "include",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ status }),
         }
       );
-      
+
       if (!response.ok) {
-        throw new Error('Failed to update order status');
+        throw new Error("Failed to update order status");
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
-      toast.success('تم تحديث حالة الطلب بنجاح');
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      toast.success("تم تحديث حالة الطلب بنجاح");
       setShowStatusModal(false);
       fetchOrders();
     },
     onError: () => {
-      toast.error('حدث خطأ في تحديث حالة الطلب');
+      toast.error("حدث خطأ في تحديث حالة الطلب");
     },
   });
 
   const getStatusClasses = (status: string) => {
     switch (status) {
-      case 'DELIVERED':
-        return 'bg-green-100 text-green-800';
-      case 'PROCESSING':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'PENDING':
-        return 'bg-gray-100 text-gray-800';
-      case 'OUT_FOR_DELIVERY':
-        return 'bg-blue-100 text-blue-800';
+      case "DELIVERED":
+        return "bg-green-100 text-green-800";
+      case "PROCESSING":
+        return "bg-yellow-100 text-yellow-800";
+      case "PENDING":
+        return "bg-gray-100 text-gray-800";
+      case "OUT_FOR_DELIVERY":
+        return "bg-blue-100 text-blue-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'PENDING':
-        return 'قيد الإنتظار';
-      case 'DELIVERED':
-        return 'تم التوصيل';
-      case 'PROCESSING':
-        return 'قيد التنفيذ';
-      case 'OUT_FOR_DELIVERY':
-        return 'خرج للتوصيل';
+      case "PENDING":
+        return "قيد الإنتظار";
+      case "DELIVERED":
+        return "تم التوصيل";
+      case "PROCESSING":
+        return "قيد التنفيذ";
+      case "OUT_FOR_DELIVERY":
+        return "خرج للتوصيل";
       default:
         return status;
     }
@@ -195,17 +208,17 @@ const OrderManagement: React.FC = () => {
 
   // Format date like factory batches
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-EG', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    return new Date(dateString).toLocaleDateString("ar-EG", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const columns = [
     {
-      key: 'text_id',
-      title: 'رقم الطلب',
+      key: "text_id",
+      title: "رقم الطلب",
       render: (order: GetOrder) => (
         <span className="font-medium text-[hsl(var(--primary))]">
           #{order.text_id}
@@ -213,8 +226,8 @@ const OrderManagement: React.FC = () => {
       ),
     },
     {
-      key: 'merchantName',
-      title: 'اسم الدكان',
+      key: "merchantName",
+      title: "اسم الدكان",
       render: (order: GetOrder) => (
         <div>
           <div className="font-medium">{order.merchant.commercialName}</div>
@@ -222,15 +235,15 @@ const OrderManagement: React.FC = () => {
       ),
     },
     {
-      key: 'totalValue',
-      title: 'القيمة (د.أ)',
+      key: "totalValue",
+      title: "القيمة (د.أ)",
       render: (order: GetOrder) => (
         <span className="font-semibold">{order.totalValue.toFixed(2)}</span>
       ),
     },
     {
-      key: 'createdAt',
-      title: 'التاريخ',
+      key: "createdAt",
+      title: "التاريخ",
       render: (order: GetOrder) => (
         <div className="flex items-center gap-1 text-sm text-gray-600">
           <Calendar className="h-4 w-4" />
@@ -239,19 +252,21 @@ const OrderManagement: React.FC = () => {
       ),
     },
     {
-      key: 'status',
-      title: 'الحالة',
+      key: "status",
+      title: "الحالة",
       render: (order: GetOrder) => (
         <span
-          className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getStatusClasses(order.status)}`}
+          className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getStatusClasses(
+            order.status
+          )}`}
         >
           {getStatusText(order.status)}
         </span>
       ),
     },
     {
-      key: 'actions',
-      title: 'الإجراءات',
+      key: "actions",
+      title: "الإجراءات",
       render: (order: GetOrder) => (
         <div className="flex space-x-2 space-x-reverse">
           <button
@@ -307,10 +322,12 @@ const OrderManagement: React.FC = () => {
 
   // Calculate status counts for stats cards
   const statusCounts = {
-    PENDING: data.filter(order => order.status === 'PENDING').length,
-    PROCESSING: data.filter(order => order.status === 'PROCESSING').length,
-    OUT_FOR_DELIVERY: data.filter(order => order.status === 'OUT_FOR_DELIVERY').length,
-    DELIVERED: data.filter(order => order.status === 'DELIVERED').length,
+    PENDING: data.filter((order) => order.status === "PENDING").length,
+    PROCESSING: data.filter((order) => order.status === "PROCESSING").length,
+    OUT_FOR_DELIVERY: data.filter(
+      (order) => order.status === "OUT_FOR_DELIVERY"
+    ).length,
+    DELIVERED: data.filter((order) => order.status === "DELIVERED").length,
   };
 
   return (
@@ -329,7 +346,9 @@ const OrderManagement: React.FC = () => {
             disabled={loading}
             className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition-colors duration-200"
           >
-            <RefreshCw className={`h-4 w-4 ml-2 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-4 w-4 ml-2 ${loading ? "animate-spin" : ""}`}
+            />
             تحديث
           </button>
         </div>
@@ -342,8 +361,12 @@ const OrderManagement: React.FC = () => {
             <div className="flex items-center">
               <div className="w-3 h-3 bg-gray-500 rounded-full ml-3"></div>
               <div>
-                <p className="text-sm font-medium text-gray-600">قيد الانتظار</p>
-                <p className="text-2xl font-bold text-gray-900">{statusCounts.PENDING}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  قيد الانتظار
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {statusCounts.PENDING}
+                </p>
               </div>
             </div>
           </div>
@@ -352,7 +375,9 @@ const OrderManagement: React.FC = () => {
               <div className="w-3 h-3 bg-yellow-500 rounded-full ml-3"></div>
               <div>
                 <p className="text-sm font-medium text-gray-600">قيد التنفيذ</p>
-                <p className="text-2xl font-bold text-gray-900">{statusCounts.PROCESSING}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {statusCounts.PROCESSING}
+                </p>
               </div>
             </div>
           </div>
@@ -361,7 +386,9 @@ const OrderManagement: React.FC = () => {
               <div className="w-3 h-3 bg-blue-500 rounded-full ml-3"></div>
               <div>
                 <p className="text-sm font-medium text-gray-600">خرج للتوصيل</p>
-                <p className="text-2xl font-bold text-gray-900">{statusCounts.OUT_FOR_DELIVERY}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {statusCounts.OUT_FOR_DELIVERY}
+                </p>
               </div>
             </div>
           </div>
@@ -370,7 +397,9 @@ const OrderManagement: React.FC = () => {
               <div className="w-3 h-3 bg-green-500 rounded-full ml-3"></div>
               <div>
                 <p className="text-sm font-medium text-gray-600">تم التوصيل</p>
-                <p className="text-2xl font-bold text-gray-900">{statusCounts.DELIVERED}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {statusCounts.DELIVERED}
+                </p>
               </div>
             </div>
           </div>
@@ -382,13 +411,13 @@ const OrderManagement: React.FC = () => {
       {/* Filters Card */}
       <div className="bg-white rounded-lg shadow p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1"></div> 
+          <div className="flex-1"></div>
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition-colors"
           >
             <Filter className="h-4 w-4 ml-2" />
-            {showFilters ? 'إخفاء الفلترة' : 'فلترة'}
+            {showFilters ? "إخفاء الفلترة" : "فلترة"}
           </button>
         </div>
 
@@ -425,12 +454,12 @@ const OrderManagement: React.FC = () => {
         <OrderDetailsModal
           order={{
             ...selectedOrder,
-            createdAt: selectedOrder.createdAt, 
+            createdAt: selectedOrder.createdAt,
             text_id: selectedOrder.text_id,
             merchant: {
               ...selectedOrder.merchant,
-              phone: selectedOrder.merchant.phone ?? '', 
-            }
+              phone: selectedOrder.merchant.phone ?? "",
+            },
           }}
           onClose={() => setShowDetailsModal(false)}
         />
@@ -443,7 +472,6 @@ const OrderManagement: React.FC = () => {
             setShowStatusModal(false);
             setSelectedOrder(null);
           }}
-          
           loading={updateOrderStatusMutation.isPending}
         />
       )}

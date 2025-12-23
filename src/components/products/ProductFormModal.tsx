@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { UnitTypeSchema, type GetProduct } from "@/types/product";
 import type { GetCategory } from "@/types/category";
+import { UnitTypeSchema, type GetProduct } from "@/types/product";
+import { Trash2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Trash2} from "lucide-react";
 import ImageCroper from "../Common/ImageCroper";
 
 interface ProductFormProps {
@@ -40,7 +40,7 @@ type ProductFormErrors = Partial<Record<keyof ProductFormState, string>>;
 
 export const ProductForm: React.FC<ProductFormProps> = ({
   product,
-  onSuccess
+  onSuccess,
 }) => {
   const [searchCategories, setSearchCategories] = useState("");
   const [categoriesData, setCategoriesData] = useState<GetCategory[]>([]);
@@ -50,22 +50,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const [categoriesIds, setCategoriesIDS] = useState<number[]>(
     product?.categories?.map((c) => c.id) ?? []
   );
-  const [factoryId, setFactoryId] = useState<number>(
-    product?.factoryId ?? 0
-  );
+  const [factoryId, setFactoryId] = useState<number>(product?.factoryId ?? 0);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [loadingFactories, setLoadingFactories] = useState(true);
   const [isOpenCategories, setIsOpenCategories] = useState(false);
   const [isOpenFactories, setIsOpenFactories] = useState(false);
 
-  
   // States for image editing
 
-  
   const handlefetchFactories = async () => {
     try {
       const res = await fetch(
-        'https://tajer-backend.tajerplatform.workers.dev/api/admin/factories/all_factories',
+        "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/factories/all_factories",
         { credentials: "include" }
       );
       if (res.ok) {
@@ -85,7 +81,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     try {
       setLoadingCategories(true);
       const res = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/public/all_categories?search=${searchCategories}`,
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/public/all_categories?search=${searchCategories}`,
         { credentials: "include" }
       );
       if (res.ok) {
@@ -145,16 +141,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   const [errors, setErrors] = useState<ProductFormErrors>({});
   const [loading, setLoading] = useState(false);
-const handleSave = (formData: FormData) => {
-  const imageFile = formData.get("image") as File | null;
-  if (imageFile) {
-    setForm((prev) => ({
-      ...prev,
-      imageUrl: imageFile,
-    }));
-  }
-};
-
+  const handleSave = (formData: FormData) => {
+    const imageFile = formData.get("image") as File | null;
+    if (imageFile) {
+      setForm((prev) => ({
+        ...prev,
+        imageUrl: imageFile,
+      }));
+    }
+  };
 
   const validate = (): boolean => {
     const newErrors: ProductFormErrors = {};
@@ -173,7 +168,8 @@ const handleSave = (formData: FormData) => {
         newErrors.piecesPerPack = "عدد القطع في العبوة مطلوب";
     }
     if (!form.description.trim()) newErrors.description = "الوصف مطلوب";
-    if (!form.description_ar.trim()) newErrors.description_ar = "الوصف باللغه العربيه مطلوب";
+    if (!form.description_ar.trim())
+      newErrors.description_ar = "الوصف باللغه العربيه مطلوب";
     if (!form.minOrderQuantity)
       newErrors.minOrderQuantity = "مطلوب الحد الأدنى للطلب ";
     if (!form.categoryIds.length)
@@ -185,7 +181,9 @@ const handleSave = (formData: FormData) => {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const target = e.target;
     const name = target.name as keyof ProductFormState;
@@ -200,9 +198,6 @@ const handleSave = (formData: FormData) => {
       [name]: value,
     }));
   };
-
-
-
 
   const handleFilterCategory = (id: number) => {
     setCategoriesChoose((prev) => prev.filter((c) => c.id !== id));
@@ -220,59 +215,64 @@ const handleSave = (formData: FormData) => {
       return;
     }
     setLoading(true);
-    
-    const formData = new FormData();
-    formData.append('name', form.name);
-    formData.append('name_ar', form.name_ar);
-    formData.append('barcode', form.barcode);
-    formData.append('unitType', form.unitType);
-    
-    if (form.unitType === 'piece_only' || form.unitType === 'piece_or_pack') {
-      formData.append('piecePrice', String(form.piecePrice));
-    }
-    
-    if (form.unitType === 'pack_only' || form.unitType === 'piece_or_pack') {
-      formData.append('packPrice', String(form.packPrice));
-      formData.append('piecesPerPack', String(form.piecesPerPack));
-    }
-    
-    formData.append('description', form.description);
-    formData.append('description_ar', form.description_ar);
-    formData.append('factoryId', String(factoryId));
-    formData.append('minOrderQuantity', String(form.minOrderQuantity));
-    formData.append('discountAmount', String(form.discountAmount));
-    formData.append('discountType', form.discountType);
-    
-if (form.imageUrl instanceof File) {
-  formData.append("image", form.imageUrl);
-} else if (typeof form.imageUrl === "string" && form.imageUrl.trim() !== "") {
-  formData.append("imageUrl", form.imageUrl);
-}
 
-    
-    formData.append('categoryIds', JSON.stringify(categoriesChoose.map((c) => c.id)));
+    const formData = new FormData();
+    formData.append("name", form.name);
+    formData.append("name_ar", form.name_ar);
+    formData.append("barcode", form.barcode);
+    formData.append("unitType", form.unitType);
+
+    if (form.unitType === "piece_only" || form.unitType === "piece_or_pack") {
+      formData.append("piecePrice", String(form.piecePrice));
+    }
+
+    if (form.unitType === "pack_only" || form.unitType === "piece_or_pack") {
+      formData.append("packPrice", String(form.packPrice));
+      formData.append("piecesPerPack", String(form.piecesPerPack));
+    }
+
+    formData.append("description", form.description);
+    formData.append("description_ar", form.description_ar);
+    formData.append("factoryId", String(factoryId));
+    formData.append("minOrderQuantity", String(form.minOrderQuantity));
+    formData.append("discountAmount", String(form.discountAmount));
+    formData.append("discountType", form.discountType);
+
+    if (form.imageUrl instanceof File) {
+      formData.append("image", form.imageUrl);
+    } else if (
+      typeof form.imageUrl === "string" &&
+      form.imageUrl.trim() !== ""
+    ) {
+      formData.append("imageUrl", form.imageUrl);
+    }
+
+    formData.append(
+      "categoryIds",
+      JSON.stringify(categoriesChoose.map((c) => c.id))
+    );
 
     try {
-      setLoading(true)
+      setLoading(true);
       const response = await fetch(
-        product 
-          ? `https://tajer-backend.tajerplatform.workers.dev/api/admin/products/${product.id}`
-          : "https://tajer-backend.tajerplatform.workers.dev/api/admin/products", 
+        product
+          ? `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/products/${product.id}`
+          : "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/products",
         {
           method: product ? "PUT" : "POST",
-          credentials: 'include',
+          credentials: "include",
           body: formData,
         }
       );
-      
+
       if (!response.ok) {
-        toast.error('حدث خطأ في إنشاء المنتج');
+        toast.error("حدث خطأ في إنشاء المنتج");
       } else {
-        toast.success('تمت إضافة المنتج بنجاح!');
+        toast.success("تمت إضافة المنتج بنجاح!");
         onSuccess();
       }
-    } catch  {
-      toast.error('حدث خطأ في إنشاء المنتج' );
+    } catch {
+      toast.error("حدث خطأ في إنشاء المنتج");
     } finally {
       setLoading(false);
     }
@@ -281,7 +281,6 @@ if (form.imageUrl instanceof File) {
   return (
     <div className="space-y-4 max-h-[550px] overflow-auto p-4">
       {/* Image Editor Modal */}
-
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -453,7 +452,6 @@ if (form.imageUrl instanceof File) {
             </p>
           )}
         </div>
-      
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700">الوصف</label>
@@ -469,7 +467,9 @@ if (form.imageUrl instanceof File) {
         )}
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700">الوصف باللغه العربيه</label>
+        <label className="block text-sm font-medium text-gray-700">
+          الوصف باللغه العربيه
+        </label>
         <textarea
           name="description_ar"
           value={form.description_ar}
@@ -575,9 +575,7 @@ if (form.imageUrl instanceof File) {
           </p>
         ) : (
           <div className="border rounded p-3 overflow-y-auto space-y-2 max-h-40">
-            <div
-              className="flex gap-3 items-center justify-between"
-            >
+            <div className="flex gap-3 items-center justify-between">
               <div className="flex items-center gap-3">
                 <img
                   src={factoryChoose.imageUrl ?? ""}
@@ -586,11 +584,11 @@ if (form.imageUrl instanceof File) {
                 />
                 <span>{factoryChoose.name}</span>
               </div>
-              <button 
+              <button
                 onClick={handleFilterFactory}
                 className="text-red-500 cursor-pointer"
               >
-                <Trash2 className="w-5 h-5"/>
+                <Trash2 className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -637,23 +635,23 @@ if (form.imageUrl instanceof File) {
           </div>
         )}
       </div>
-      <div className='w-full'>
-        <label className="block text-sm font-medium text-gray-700 mb-2">صورة المنتج</label>
-          <ImageCroper
-  aspect={1 / 1}
-
-  height={1200}
-  width={1200}
-  loadingSave={loading}
-  onSave={handleSave}
-  onClose={() => {}} 
-  banner={product?.imageUrl ? { imageUrl: product.imageUrl } : null}
-  minDimensions={{
-    width: 1200,
-    height: 1200,
-  }}
-/>
-
+      <div className="w-full">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          صورة المنتج
+        </label>
+        <ImageCroper
+          aspect={1 / 1}
+          height={1200}
+          width={1200}
+          loadingSave={loading}
+          onSave={handleSave}
+          onClose={() => {}}
+          banner={product?.imageUrl ? { imageUrl: product.imageUrl } : null}
+          minDimensions={{
+            width: 1200,
+            height: 1200,
+          }}
+        />
       </div>
       <div className="flex justify-end space-x-3 pt-4">
         <button
@@ -666,7 +664,7 @@ if (form.imageUrl instanceof File) {
               : "bg-[hsl(var(--primary))] text-white px-4 py-2 rounded-md cursor-pointer hover:opacity-90"
           }
         >
-          {loading ? "جاري الحفظ..." : (product ? "تحديث المنتج" : "حفظ المنتج")}
+          {loading ? "جاري الحفظ..." : product ? "تحديث المنتج" : "حفظ المنتج"}
         </button>
       </div>
     </div>

@@ -1,91 +1,92 @@
-import { Edit, Trash2, PlusCircle } from 'lucide-react'
-import FormFAQ from '../components/Common/formFAQ'
-import { useState, useEffect } from 'react'
+import { Edit, PlusCircle, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import FormFAQ from "../components/Common/formFAQ";
 
 interface FaqType {
-  id?: number
-  question_en?: string
-  answer_en?: string
-  question_ar?: string
-  answer_ar?: string
+  id?: number;
+  question_en?: string;
+  answer_en?: string;
+  question_ar?: string;
+  answer_ar?: string;
 }
 
 export default function FAQ() {
-  const [faqs, setFaqs] = useState<FaqType[]>([])
-  const [selectedFaq, setSelectedFaq] = useState<FaqType | null>(null)
-  const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [faqs, setFaqs] = useState<FaqType[]>([]);
+  const [selectedFaq, setSelectedFaq] = useState<FaqType | null>(null);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-
-
-
-   const fetchData = async () => {
-      const response = await fetch(
-        'https://tajer-backend.tajerplatform.workers.dev/api/admin/faqs',
-        { credentials: 'include' }
-      )
-      const data = await response.json()
-      setFaqs(data)
-    };
+  const fetchData = async () => {
+    const response = await fetch(
+      "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/faqs",
+      { credentials: "include" }
+    );
+    const data = await response.json();
+    setFaqs(data);
+  };
   useEffect(() => {
     fetchData();
   }, []);
 
   const handleSave = async (faqData: FaqType) => {
-setLoading(true)
+    setLoading(true);
     if (selectedFaq && selectedFaq.id) {
-
-      await fetch(`https://tajer-backend.tajerplatform.workers.dev/api/admin/faqs/${selectedFaq.id}`, {
-  method: 'PUT',
-  credentials: 'include',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    question_en: faqData.question_en,
-    answer_en: faqData.answer_en,
-    question_ar: faqData.question_ar,
-    answer_ar: faqData.answer_ar
-  })
-})
-        setLoading(false);
-
-    } else {
       await fetch(
-        'https://tajer-backend.tajerplatform.workers.dev/api/admin/faqs',
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/faqs/${selectedFaq.id}`,
         {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
+          method: "PUT",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({
             question_en: faqData.question_en,
             answer_en: faqData.answer_en,
             question_ar: faqData.question_ar,
-            answer_ar: faqData.answer_ar
-        }),
+            answer_ar: faqData.answer_ar,
+          }),
         }
-      )
+      );
+      setLoading(false);
+    } else {
+      await fetch(
+        "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/faqs",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            question_en: faqData.question_en,
+            answer_en: faqData.answer_en,
+            question_ar: faqData.question_ar,
+            answer_ar: faqData.answer_ar,
+          }),
+        }
+      );
     }
     const response = await fetch(
-      'https://tajer-backend.tajerplatform.workers.dev/api/admin/faqs',
-      { credentials: 'include' }
-    )
-    const updatedData = await response.json()
-    setFaqs(updatedData)
-    setOpen(false)
-    setSelectedFaq(null)
-  }
+      "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/faqs",
+      { credentials: "include" }
+    );
+    const updatedData = await response.json();
+    setFaqs(updatedData);
+    setOpen(false);
+    setSelectedFaq(null);
+  };
 
   const handleDelete = async (faqId?: number) => {
-    if(window.confirm('هل تريد حذف هذا السؤال ؟')){
-        await fetch(`https://tajer-backend.tajerplatform.workers.dev/api/admin/faqs/${faqId}`, {
-          method: 'DELETE',
-          credentials: 'include',
-});
-    setFaqs((prev) => prev.filter((item) => item.id !== faqId));
-    };
+    if (window.confirm("هل تريد حذف هذا السؤال ؟")) {
+      await fetch(
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/faqs/${faqId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+      setFaqs((prev) => prev.filter((item) => item.id !== faqId));
+    }
     if (!faqId) return;
-  }
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -100,8 +101,8 @@ setLoading(true)
       <div className="mt-4 w-full flex justify-end items-center">
         <button
           onClick={() => {
-            setSelectedFaq(null)
-            setOpen(true)
+            setSelectedFaq(null);
+            setOpen(true);
           }}
           className="inline-flex items-center px-4 py-2 bg-[hsl(var(--primary))] text-white rounded-md hover:bg-[hsl(var(--primary))]/90 cursor-pointer"
         >
@@ -126,8 +127,8 @@ setLoading(true)
             <div className="flex  gap-2 ml-4">
               <button
                 onClick={() => {
-                  setSelectedFaq(faq)
-                  setOpen(true)
+                  setSelectedFaq(faq);
+                  setOpen(true);
                 }}
                 className="text-[hsl(var(--primary))] hover:text-[hsl(var(--primary))]/90 cursor-pointer hover:scale-110 duration-150"
                 title="تعديل"
@@ -158,4 +159,4 @@ setLoading(true)
       )}
     </div>
   );
-};
+}

@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
 import { CheckCircle, XCircle } from "lucide-react";
-import DataTable from "../Common/DataTable";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import DataTable from "../Common/DataTable";
 
 interface Merchant {
   id: number;
@@ -85,7 +85,7 @@ const TajerRequestsTable: React.FC = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/admin/add-tajer-requests?page=${currentPage}&limit=${pageSize}&search=${searchTerm}`,
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/add-tajer-requests?page=${currentPage}&limit=${pageSize}&search=${searchTerm}`,
         { credentials: "include" }
       );
 
@@ -111,7 +111,7 @@ const TajerRequestsTable: React.FC = () => {
   const handleConfirm = async (requestId: number, status: string) => {
     try {
       const response = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/admin/add-tajer-requests/${requestId}/confirm`,
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/add-tajer-requests/${requestId}/confirm`,
         {
           method: "POST",
           credentials: "include",
@@ -165,15 +165,15 @@ const TajerRequestsTable: React.FC = () => {
             request.status === "PENDING"
               ? "bg-yellow-100 text-yellow-800"
               : request.status === "CONFIRMED"
-                ? "bg-green-100 text-[hsl(var(--primary))]"
-                : "bg-red-100 text-red-800"
+              ? "bg-green-100 text-[hsl(var(--primary))]"
+              : "bg-red-100 text-red-800"
           }`}
         >
           {request.status === "PENDING"
             ? "قيد الانتظار"
             : request.status === "CONFIRMED"
-              ? "مؤكد"
-              : "مرفوض"}
+            ? "مؤكد"
+            : "مرفوض"}
         </span>
       ),
     },

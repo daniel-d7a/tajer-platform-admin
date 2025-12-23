@@ -1,8 +1,8 @@
-import type React from "react";
-import { useState, useEffect } from "react";
-import { User, Shield, X, Settings2 } from "lucide-react";
-import toast from "react-hot-toast";
 import ImageCroper from "@/components/Common/ImageCroper";
+import { Settings2, Shield, User, X } from "lucide-react";
+import type React from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 interface SettingsData {
   commercialName: string;
@@ -88,7 +88,7 @@ const Settings: React.FC = () => {
   const fetchSettingsData = async () => {
     try {
       const data = await fetch(
-        "https://tajer-backend.tajerplatform.workers.dev/api/public/users/1",
+        "https://tajer-platform-api.eyadabdou862.workers.dev/api/public/users/1",
         {
           credentials: "include",
         }
@@ -122,7 +122,7 @@ const Settings: React.FC = () => {
   const getHomePageData = async () => {
     try {
       const response = await fetch(
-        "https://tajer-backend.tajerplatform.workers.dev/api/admin/settings",
+        "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/settings",
         {
           credentials: "include",
         }
@@ -181,7 +181,7 @@ const Settings: React.FC = () => {
       }
 
       const response = await fetch(
-        "https://tajer-backend.tajerplatform.workers.dev/api/admin/settings",
+        "https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/settings",
         {
           method: "PATCH",
           credentials: "include",
@@ -206,7 +206,7 @@ const Settings: React.FC = () => {
     try {
       setLoadingUser(true);
       const update = await fetch(
-        "https://tajer-backend.tajerplatform.workers.dev/api/public/users",
+        "https://tajer-platform-api.eyadabdou862.workers.dev/api/public/users",
         {
           method: "PUT",
           credentials: "include",

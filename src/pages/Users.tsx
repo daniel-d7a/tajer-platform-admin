@@ -1,11 +1,17 @@
-import { useState, useEffect } from "react";
-import { Eye, Trash2, Search, DollarSign, Edit, PlusCircle } from "lucide-react";
-import DataTable from '@/components/Common/DataTable';
-import UserDetails from '../components/Users/userDetails';
+import DataTable from "@/components/Common/DataTable";
+import AddUsersForm from "@/components/Users/AddUsersForm";
+import {
+  DollarSign,
+  Edit,
+  Eye,
+  PlusCircle,
+  Search,
+  Trash2,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import AddUsersForm from  '@/components/Users/AddUsersForm';
+import UserDetails from "../components/Users/userDetails";
 
- 
 interface User {
   id: number;
   commercialName: string;
@@ -16,116 +22,130 @@ interface User {
   role: string;
   walletBalance: number;
   isActive: boolean;
-  area:string;
-  referralCode:string;
+  area: string;
+  referralCode: string;
 }
 interface Pagination {
   page: number;
   per_page: number;
   total: number;
-  currentPage:number;
-  pageSize:number;
-  
+  currentPage: number;
+  pageSize: number;
 }
 
 const Users: React.FC = () => {
   const [open, setOpen] = useState(false);
-const [data, setData] = useState<User[]>([]);
-const [pagination, setPagination] = useState<Pagination>({
-  page: 1,
-  per_page: 10,
-  total: 0,
-  currentPage:1,
-  pageSize:10
-});
+  const [data, setData] = useState<User[]>([]);
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: 10,
+    total: 0,
+    currentPage: 1,
+    pageSize: 10,
+  });
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [value, setValue] = useState<number>(0);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
-  const [addUserFormOpen,setAddUserFormOpen] = useState(false);
-  
- const handleDeleteUser = async (item: User) => {
-  if (window.confirm(`هل انت متاكد من انك تريد حقا حذف هذا المستخدم ${item.commercialName}`)) {
-    try {
-      const res =  await fetch(`https://tajer-backend.tajerplatform.workers.dev/api/admin/users/${item.id}`, {
-        credentials: "include",
-        method: "DELETE",
-      });
-      if(res.ok){
-        toast.success('تم حذف المستخدم بنجاح ')
-        // Refresh data after deletion
-        fetchData();
-      }else{
-        toast.error('حدث خطا اثناء حذف المستخدم')
+  const [addUserFormOpen, setAddUserFormOpen] = useState(false);
+
+  const handleDeleteUser = async (item: User) => {
+    if (
+      window.confirm(
+        `هل انت متاكد من انك تريد حقا حذف هذا المستخدم ${item.commercialName}`
+      )
+    ) {
+      try {
+        const res = await fetch(
+          `https://tajer-platform-api.eyadabdou862.workers.dev/api/admin/users/${item.id}`,
+          {
+            credentials: "include",
+            method: "DELETE",
+          }
+        );
+        if (res.ok) {
+          toast.success("تم حذف المستخدم بنجاح ");
+          // Refresh data after deletion
+          fetchData();
+        } else {
+          toast.error("حدث خطا اثناء حذف المستخدم");
+        }
+      } catch {
+        toast.error("حدث خطا اثناء حذف المستخدم");
       }
-    } catch  {
-        toast.error('حدث خطا اثناء حذف المستخدم')
-    };
-  }
-};
+    }
+  };
 
   const columns = [
     { key: "id", title: "رقم المستخدم" },
-    { 
-      key: "commercialName", 
+    {
+      key: "commercialName",
       title: "الاسم التجاري",
-      render: (item: User) => <span>{item.commercialName || "غير محدد"}</span>
+      render: (item: User) => <span>{item.commercialName || "غير محدد"}</span>,
     },
-    { 
-      key: "phone", 
+    {
+      key: "phone",
       title: "رقم الهاتف",
-      render: (item: User) => <span>{item.phone || "غير محدد"}</span>
+      render: (item: User) => <span>{item.phone || "غير محدد"}</span>,
     },
-    { 
-      key: "email", 
+    {
+      key: "email",
       title: "البريد الإلكتروني",
-      render: (item: User) => <span>{item.email || "غير محدد"}</span>
+      render: (item: User) => <span>{item.email || "غير محدد"}</span>,
     },
-    { 
-      key: "city", 
+    {
+      key: "city",
       title: "المدينة",
-      render: (item: User) => <span>{item.city || "غير محدد"}</span>
+      render: (item: User) => <span>{item.city || "غير محدد"}</span>,
     },
-    { 
-      key: "businessType", 
+    {
+      key: "businessType",
       title: "نوع النشاط",
       render: (item: User) => {
         const businessTypes: { [key: string]: string } = {
-          "shop": "متجر",
-          "supermarket": "سوبر ماركت",
-          "restaurant": "مطعم",
-          "roastery": "محمصه",
+          shop: "متجر",
+          supermarket: "سوبر ماركت",
+          restaurant: "مطعم",
+          roastery: "محمصه",
           "sweets shop": "محل حلويات",
           "coffee shop": "محل قهوه",
-          "cafe": "قاهيه",
-          "library": "مكتبه",
-          "other": "أخري",
-          "pharmacy": "صيدلية",
-          "bakery": "مخبز",
-          "resturant": "مطعم",
-          "coffee_shop": "مقهى",
-          "clothes": "ملابس"
+          cafe: "قاهيه",
+          library: "مكتبه",
+          other: "أخري",
+          pharmacy: "صيدلية",
+          bakery: "مخبز",
+          resturant: "مطعم",
+          coffee_shop: "مقهى",
+          clothes: "ملابس",
         };
-        return <span>{businessTypes[item.businessType] || item.businessType || "غير محدد"}</span>;
-      }
+        return (
+          <span>
+            {businessTypes[item.businessType] ||
+              item.businessType ||
+              "غير محدد"}
+          </span>
+        );
+      },
     },
-    { 
-      key: "role", 
+    {
+      key: "role",
       title: "الدور",
       render: (item: User) => {
         const roles: { [key: string]: string } = {
-          "MERCHANT": "تاجر",
-          "SALES_REP": "مندوب مبيعات",
-          "ADMIN": "أدمن"
+          MERCHANT: "تاجر",
+          SALES_REP: "مندوب مبيعات",
+          ADMIN: "أدمن",
         };
         return <span>{roles[item.role] || item.role || "غير محدد"}</span>;
-      }
+      },
     },
     {
       key: "walletBalance",
       title: "رصيد المحفظة",
-      render: (item: User) => <span>{item.walletBalance.toFixed(2) || 0} د.أ</span>,
+      render: (item: User) => (
+        <span>{item.walletBalance.toFixed(2) || 0} د.أ</span>
+      ),
     },
     {
       key: "isActive",
@@ -154,8 +174,8 @@ const [pagination, setPagination] = useState<Pagination>({
           </button>
           <button
             onClick={() => {
-              setAddUserFormOpen(true)
-              setSelectedUser(item)
+              setAddUserFormOpen(true);
+              setSelectedUser(item);
             }}
             className="text-[hsl(var(--primary))] hover:text-[hsl(var(--primary))]/90 cursor-pointer"
             title="تعديل المستخدم"
@@ -188,18 +208,18 @@ const [pagination, setPagination] = useState<Pagination>({
     setLoading(true);
     try {
       const res = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/public/users?limit=${pagination.pageSize}&page=${pagination.currentPage}&search=${searchTerm}`,
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/public/users?limit=${pagination.pageSize}&page=${pagination.currentPage}&search=${searchTerm}`,
         { credentials: "include" }
       );
       const data = await res.json();
       setData(data.data || []);
-      setPagination(prev => ({
+      setPagination((prev) => ({
         ...prev,
         page: data.meta?.page || 1,
         per_page: data.meta?.per_page || 10,
-        total: data.meta?.total || 0
+        total: data.meta?.total || 0,
       }));
-    } catch  {
+    } catch {
       toast.error("حدث خطأ في جلب البيانات");
       setData([]);
     } finally {
@@ -213,11 +233,11 @@ const [pagination, setPagination] = useState<Pagination>({
   }, [pagination.pageSize, pagination.currentPage, searchTerm]);
 
   const handlePageChange = (page: number) => {
-    setPagination(prev => ({ ...prev, currentPage: page }));
+    setPagination((prev) => ({ ...prev, currentPage: page }));
   };
 
   const handlePageSizeChange = (size: number) => {
-    setPagination(prev => ({ ...prev, pageSize: size, currentPage: 1 }));
+    setPagination((prev) => ({ ...prev, pageSize: size, currentPage: 1 }));
   };
 
   const handleAddBalance = async () => {
@@ -229,10 +249,10 @@ const [pagination, setPagination] = useState<Pagination>({
 
     try {
       const res = await fetch(
-        `https://tajer-backend.tajerplatform.workers.dev/api/cashback/cashback/manual`,
+        `https://tajer-platform-api.eyadabdou862.workers.dev/api/cashback/cashback/manual`,
         {
           method: "POST",
-          credentials:'include',
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             merchantId: selectedUser.id,
@@ -255,11 +275,11 @@ const [pagination, setPagination] = useState<Pagination>({
       setShowBalanceModal(false);
       setValue(0);
       setSelectedUser(null);
-      handleUserUpdate()
+      handleUserUpdate();
     } catch (err) {
       console.error(err);
       toast.error("حصل خطأ أثناء إضافة الرصيد ");
-    };
+    }
   };
 
   const handleCloseModals = () => {
@@ -296,8 +316,8 @@ const [pagination, setPagination] = useState<Pagination>({
             className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-md focus:ring-[hsl(var(--primary))] focus:border-[hsl(var(--primary))]"
           />
         </div>
-        
-        <button 
+
+        <button
           onClick={() => {
             setSelectedUser(null);
             setAddUserFormOpen(true);
@@ -372,17 +392,11 @@ const [pagination, setPagination] = useState<Pagination>({
       )}
 
       {addUserFormOpen && (
-        <AddUsersForm 
-          data={selectedUser} 
-          onclose={handleCloseModals}
-        />
+        <AddUsersForm data={selectedUser} onclose={handleCloseModals} />
       )}
 
       {open && selectedUser && (
-        <UserDetails
-          merchantId={selectedUser.id}
-          onClose={handleCloseModals}
-        />
+        <UserDetails merchantId={selectedUser.id} onClose={handleCloseModals} />
       )}
     </div>
   );
